@@ -1,0 +1,11 @@
+#!/bin/bash
+
+echo "==> COMPILING <=="
+echo ""
+
+cd ./build/
+cmake .. && make
+cd ..
+
+echo ""
+echo "==> COMPILED <=="

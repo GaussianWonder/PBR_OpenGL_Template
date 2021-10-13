@@ -1,0 +1,30 @@
+#!/bin/bash
+
+if [ $# -eq 0 ]
+  then
+    echo "Pass the path of the executable that you"
+    echo "    wish to run from the build folder"
+    echo "Usually this is the ./name of the project"
+    echo "    set in CMakeLists.txt"
+    echo ""
+    echo "Instead of using the run script you can"
+    echo "    edit the name of the file"
+    echo "    'opengl_template'"
+    echo "    to the name of the executable"
+    echo "    that is supposed to run"
+    exit 1
+fi
+
+sh ./compile
+cd ./build
+
+echo ""
+echo "==> EXECUTING <=="
+echo ""
+
+./$1
+
+echo ""
+echo "==> DONE <=="
+
+cd ..
