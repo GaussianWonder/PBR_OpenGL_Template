@@ -1,0 +1,7 @@
+#!/bin/bash
+
+echo "==> CLEANING <=="
+echo ""
+
+rm -rf ./build/*
+rm -rf ./cmake-build-debug/*

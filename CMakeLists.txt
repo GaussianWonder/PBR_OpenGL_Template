@@ -15,11 +15,11 @@ MACRO(HEADER_DIRECTORIES return_list)
 ENDMACRO()
 
 # End of configuration
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_C_FLAGS "-Wall")
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_C_FLAGS "-Wall -Wextra -pedantic -Werror")
 
 # Get all *.c files
-FILE(GLOB_RECURSE Sources RELATIVE ${CMAKE_SOURCE_DIR} "sources/*.c")
+FILE(GLOB_RECURSE Sources RELATIVE ${CMAKE_SOURCE_DIR} "src/*.cpp")
 
 # Get all *.h files
 FILE(GLOB_RECURSE Headers *.h)
@@ -49,3 +49,6 @@ target_link_libraries(${PROJECT_NAME} OpenGL::GL)
 
 find_package(GLEW REQUIRED)
 target_link_libraries(${PROJECT_NAME} GLEW::GLEW)
+
+find_package(glm REQUIRED)
+target_link_libraries(${PROJECT_NAME} glm)
