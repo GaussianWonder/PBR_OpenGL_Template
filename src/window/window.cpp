@@ -46,6 +46,9 @@ void Window::events()
 
 void Window::loop()
 {
+  if (!this->valid)
+    return;
+
   while (!glfwWindowShouldClose(this->glWindow))
   {
     this->draw();

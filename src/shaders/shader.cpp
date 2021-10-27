@@ -1,5 +1,6 @@
 #include "shader.h"
 
+//TODO shader rewrite
 namespace gps {
     std::string Shader::readShaderFile(std::string fileName)
     {
