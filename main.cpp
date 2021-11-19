@@ -7,29 +7,6 @@
 #include "paths.h"
 #include "shader.h"
 
-// #include <ranges>
-// #include <vector>
-
-// #include <coroutine>
-
-// struct simple {
-//     static inline int x = 0;
-//     int id = 0;
-//     simple() : id{ x++ } { std::cout << id << " constructed\n"; }
-//     simple(simple&&) : id{ x++ } { std::cout << id << " move constructed\n"; }
-//     ~simple() { std::cout << id << " destructed\n"; }
-
-//     struct promise_type {
-//         simple get_return_object() { return {}; }
-//         void return_void() {}
-//         void unhandled_exception() { std::terminate(); }
-//         auto initial_suspend() noexcept { return std::suspend_never{}; }
-//         auto final_suspend() noexcept { return std::suspend_never{}; }
-//     };
-// };
-
-// simple f() { co_return; }
-
 class CustomWindow: glt::Window
 {
 public:
@@ -75,6 +52,8 @@ public:
     glViewport(0, 0, this->retinaWidth, this->retinaHeight);
 
     shader.useShaderProgram();
+    //TODO test normal uniforms
+    //TODO make bulk uniforms
     glBindVertexArray(objectVAO);
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
@@ -98,19 +77,21 @@ private:
   glt::Shader shader;
 };
 
+#include "spdlog/spdlog.h"
+
 int main(/* int argc, const char * argv[] */)
 {
-  // std::vector<int> numbers = {1, 2, 3, 4, 5, 6};
-  // auto results = numbers
-  //   | std::views::filter([](int n){ return n % 2 == 0; })
-  //   | std::views::transform([](int n){ return n * 2; });
-  // for (auto v: results)
-  //   std::cout << v << " ";
+  spdlog::info("Welcome to spdlog!");
+  spdlog::error("Some error message with arg: {}", 1);
 
-  std::cout << PathConcat(ShaderFolder, "/basic/uniform/shader.vert") << PathConcat(ShaderFolder, "/basic/uniform/shader.frag") << std::endl;
+  spdlog::warn("Easy padding in numbers like {:08d}", 12);
+  spdlog::critical("Support for int: {0:d};  hex: {0:x};  oct: {0:o}; bin: {0:b}", 42);
+  spdlog::info("Support for floats {:03.2f}", 1.23456);
+  spdlog::info("Positional args are {1} {0}..", "too", "supported");
+  spdlog::info("{:<30}", "left aligned");
 
-  CustomWindow window("Test", 600, 400);
-  window();
+  // CustomWindow window("Test", 600, 400);
+  // window();
 
   return 0;
 }

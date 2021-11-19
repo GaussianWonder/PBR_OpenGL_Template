@@ -56,3 +56,6 @@ target_link_libraries(${PROJECT_NAME} glm)
 
 find_package(GSL REQUIRED)
 target_link_libraries(${PROJECT_NAME} GSL::gsl GSL::gslcblas)
+
+find_package(spdlog REQUIRED)
+target_link_libraries(${PROJECT_NAME} spdlog::spdlog)

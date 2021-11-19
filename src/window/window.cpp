@@ -3,19 +3,15 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include <iostream>
-
 namespace glt {
 
 Window::Window (const char *title, int width, int height)
   :title(title), width(width), height(height)
 {
   this->valid = initOpenGLWindow();
-  std::cout << "The valid value is" << this->valid << std::endl;
 
   if (this->valid)
   {
-    std::cout << "executing the setup now" << std::endl;
     this->setup();
   }
 }
