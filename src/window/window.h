@@ -1,5 +1,7 @@
-#ifndef _WINDOW_HPP_
-#define _WINDOW_HPP_
+#ifndef _WINDOW_H_
+#define _WINDOW_H_
+
+#define GLEW_STATIC
 
 #include <stdio.h>
 
@@ -15,7 +17,7 @@ public:
 
   virtual void operator() ();
 
-  bool valid = false;
+  bool isValid();
 
 protected:
   virtual void setup();
@@ -23,15 +25,15 @@ protected:
   virtual void events();
   virtual void loop();
 
-private:
   const char *title;
   int width, height;
   int retinaWidth, retinaHeight;
   GLFWwindow* glWindow = NULL;
-
+private:
+  bool valid = false;
   bool initOpenGLWindow();
 };
 
 } // namespace glt
 
-#endif // _WINDOW_HPP_ 
+#endif // _WINDOW_H_ 
