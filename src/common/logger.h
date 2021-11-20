@@ -5,6 +5,8 @@
 //TODO It can be a good idea to split debugging and info logging from the other log types, and have only those be completely turned off
 #define DEFAULT_LOGGER "global"
 
+// TODO add break_points for assert statements. See https://github.com/scottt/debugbreak
+
 #include <source_location>
 #include "spdlog/spdlog.h"
 
