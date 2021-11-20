@@ -11,6 +11,7 @@ Window::Window (const char *title, int width, int height)
   :title(title), width(width), height(height)
 {
   this->valid = initOpenGLWindow();
+  ASSERT(this->valid == true, "The window should be valid to continue with the window setup and further rendering!");
 
   if (this->valid)
   {
@@ -58,6 +59,7 @@ void Window::events()
 
 void Window::loop()
 {
+  ASSERT(this->valid == true, "The window should be valid to jump in the rendering loop!");
   if (!this->valid)
     return;
 
@@ -84,6 +86,7 @@ bool Window::initOpenGLWindow()
   glfwWindowHint(GLFW_SAMPLES, 4);
 
   glWindow = glfwCreateWindow(this->width, this->height, this->title, NULL, NULL);
+  ASSERT(glWindow, "No window handle was returned. You need a window handle for the window to be valid!");
   if (!glWindow) {
     FATAL("Could not open window with GLFW3");
     return false;

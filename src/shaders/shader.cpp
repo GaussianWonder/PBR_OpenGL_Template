@@ -73,6 +73,7 @@ void Shader::shaderCompileLog(GLuint shaderId)
         
   //check compilation info
   glGetShaderiv(shaderId, GL_COMPILE_STATUS, &success);
+  ASSERT(success, "Shader compilation failed. Rendering will lack!");
   if(!success)
   {
     glGetShaderInfoLog(shaderId, 512, NULL, infoLog);
@@ -87,6 +88,7 @@ void Shader::shaderLinkLog(GLuint shaderProgramId)
 
   //check linking info
   glGetProgramiv(shaderProgramId, GL_LINK_STATUS, &success);
+  ASSERT(success, "Shader linking failed. Rendering will lack!");
   if(!success)
   {
     glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
