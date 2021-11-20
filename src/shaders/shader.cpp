@@ -20,8 +20,10 @@ Shader::Shader(const char *vertexShaderFileName, const char *fragmentShaderFileN
 
 GLuint Shader::parseShader(const std::string &fileName, GLenum shaderType)
 {
+  DEBUG("Parsing {} shader {}", shaderType, fileName);
   std::string contents = this->readShaderFile(fileName);
   const GLchar* shaderString = contents.c_str();
+  DEBUG("{} shader contents \n{}\n", shaderType, shaderString);
   GLuint shader;
   shader = glCreateShader(shaderType);
   glShaderSource(shader, 1, &shaderString, NULL);
@@ -34,6 +36,8 @@ void Shader::loadShader(const std::string &vertexShaderFileName, const std::stri
 {
   GLuint vertexShader = this->parseShader(vertexShaderFileName, GL_VERTEX_SHADER);
   GLuint fragmentShader = this->parseShader(fragmentShaderFileName, GL_FRAGMENT_SHADER);
+  DEBUG("Vertex shader at {}", vertexShader);
+  DEBUG("Fragment shader at {}", fragmentShader);
 
   this->shaderProgram = glCreateProgram();
   glAttachShader(this->shaderProgram, vertexShader);
