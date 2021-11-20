@@ -84,10 +84,12 @@ private:
 int main(/* int argc, const char * argv[] */)
 {
   glt::Logger::init();
+  INFO("Logger init");
 
   CustomWindow window("OpenGL Template", 600, 400);
   window();
 
+  INFO("Logger destroy");
   glt::Logger::destroy();
   return 0;
 }
