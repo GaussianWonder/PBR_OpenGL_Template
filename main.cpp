@@ -1,11 +1,12 @@
 #define GLEW_STATIC
 
 #include <GL/glew.h>
-#include <iostream>
 
 #include "window.h"
 #include "paths.h"
 #include "shader.h"
+
+#include "logger.h"
 
 class CustomWindow: glt::Window
 {
@@ -18,11 +19,14 @@ public:
         PathConcat(ShaderFolder, "/basic/uniform/shader.frag")
       )
     ))
-  {}
+  {
+    DEBUG("Window construct successful with valid state of {}", this->isValid());
+  }
 
   void setup()
   {
-    std::cout << "SETUP"<<std::endl;
+    DEBUG("Window setup");
+
     glEnable(GL_DEPTH_TEST); // enable depth-testing
     glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
     glEnable(GL_CULL_FACE); // cull face
@@ -42,7 +46,7 @@ public:
 
     glBindVertexArray(0);
 
-    std::cout << "VBO VAO indexes" << verticesVBO << ' ' << objectVAO << std::endl;
+    DEBUG("VBO at {}, VAO at {}", verticesVBO, objectVAO);
   }
 
   void draw()
@@ -77,21 +81,13 @@ private:
   glt::Shader shader;
 };
 
-#include "spdlog/spdlog.h"
-
 int main(/* int argc, const char * argv[] */)
 {
-  spdlog::info("Welcome to spdlog!");
-  spdlog::error("Some error message with arg: {}", 1);
+  glt::Logger::init();
 
-  spdlog::warn("Easy padding in numbers like {:08d}", 12);
-  spdlog::critical("Support for int: {0:d};  hex: {0:x};  oct: {0:o}; bin: {0:b}", 42);
-  spdlog::info("Support for floats {:03.2f}", 1.23456);
-  spdlog::info("Positional args are {1} {0}..", "too", "supported");
-  spdlog::info("{:<30}", "left aligned");
+  CustomWindow window("OpenGL Template", 600, 400);
+  window();
 
-  // CustomWindow window("Test", 600, 400);
-  // window();
-
+  glt::Logger::destroy();
   return 0;
 }

@@ -2,10 +2,11 @@
 
 #include <GL/glew.h>
 
-#include <iostream>
 #include <fstream>
 #include <sstream>
 #include <string>
+
+#include "logger.h"
 
 namespace glt {
 
@@ -75,7 +76,7 @@ void Shader::shaderCompileLog(GLuint shaderId)
   if(!success)
   {
     glGetShaderInfoLog(shaderId, 512, NULL, infoLog);
-    std::cout << "Shader compilation error\n" << infoLog << std::endl;
+    ERROR("Shader compilation error {}", infoLog);
   }
 }
  
@@ -89,7 +90,7 @@ void Shader::shaderLinkLog(GLuint shaderProgramId)
   if(!success)
   {
     glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-    std::cout << "Shader linking error\n" << infoLog << std::endl;
+    ERROR("Shader linking error {}", infoLog);
   }
 }
 

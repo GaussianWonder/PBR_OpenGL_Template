@@ -3,6 +3,8 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include "logger.h"
+
 namespace glt {
 
 Window::Window (const char *title, int width, int height)
@@ -69,7 +71,7 @@ void Window::loop()
 bool Window::initOpenGLWindow()
 {
   if (!glfwInit()) {
-    fprintf(stderr, "ERROR: could not start GLFW3\n");
+    FATAL("Could not start GLFW3");
     return false;
   }
 
@@ -83,7 +85,7 @@ bool Window::initOpenGLWindow()
 
   glWindow = glfwCreateWindow(this->width, this->height, this->title, NULL, NULL);
   if (!glWindow) {
-    fprintf(stderr, "ERROR: could not open window with GLFW3\n");
+    FATAL("Could not open window with GLFW3");
     return false;
   }
 
@@ -96,8 +98,8 @@ bool Window::initOpenGLWindow()
   // get version info
   const GLubyte* renderer = glGetString(GL_RENDERER); // get renderer string
   const GLubyte* version = glGetString(GL_VERSION); // version as a string
-  printf("Renderer: %s\n", renderer);
-  printf("OpenGL version supported %s\n", version);
+  INFO("Renderer {}", renderer);
+  INFO("OpenGL version supported {}", version);
 
   //for RETINA display
   glfwGetFramebufferSize(this->glWindow, &(this->retinaWidth), &(this->retinaHeight));

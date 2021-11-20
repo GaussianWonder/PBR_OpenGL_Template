@@ -28,9 +28,9 @@ is_help=false
 
 cmds=()
 
-for var in "$@"
+for arg in "$@"
 do
-  case $var in
+  case $arg in
 
     "help")
       is_help=true
