@@ -33,13 +33,7 @@ public:
 
   template<typename ...Args>
     requires IsSharableUniform<Args...>
-  void withUniforms(Args... sharableUniforms)
-  {
-    constexpr std::size_t uniformCount = sizeof...(Args);
-    DEBUG("Shader {} received {} uniforms", this->shaderProgram, uniformCount);
-    ASSERT(uniformCount > 0, "With uniform expects at least one uniform. Send all uniforms, they will be replaced at the next assignment.");
-    std::tuple<Args...> uniforms{sharableUniforms...};
-  }
+  void withUniforms(Args... sharableUniforms);
 
 private:
   GLuint parseShader(const std::string &fileName, GLenum shaderType);
@@ -52,6 +46,16 @@ private:
   static Shader* shaderUsed;
   // Not really the best idea, but this should only be used as an unique identifier
 };
+
+template<typename ...Args>
+  requires IsSharableUniform<Args...>
+void withUniforms(Args... sharableUniforms)
+{
+  constexpr std::size_t uniformCount = sizeof...(Args);
+  DEBUG("Shader {} received {} uniforms", this->shaderProgram, uniformCount);
+  ASSERT(uniformCount > 0, "With uniform expects at least one uniform. Send all uniforms, they will be replaced at the next assignment.");
+  std::tuple<Args...> uniforms{sharableUniforms...};
+}
 
 } // namespace glt
 
