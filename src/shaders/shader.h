@@ -5,12 +5,21 @@
 
 #include <GL/glew.h>
 #include <string>
+#include <tuple>
+#include <memory>
+
+#include "logger.h"
 #include "uniform.h"
 
 namespace glt {
 
 template<typename T>
 class Uniform; // let the compile know there will be such a class
+
+// Concepts for later use
+template<typename T> struct is_sharable_uniform : std::false_type {};
+template<typename T> struct is_sharable_uniform<std::shared_ptr<Uniform<T>>> : std::true_type {};
+template<typename ...T> concept IsSharableUniform = (is_sharable_uniform<T>::value && ...);
 
 class Shader {
   template<typename T>
@@ -22,10 +31,14 @@ public:
   void loadShader(const std::string &vertexShaderFileName, const std::string &fragmentShaderFileName);
   void useShaderProgram();
 
-  template<typename T>
-  void subscribe(Uniform<T> &uniform)
+  template<typename ...Args>
+    requires IsSharableUniform<Args...>
+  void withUniforms(Args... sharableUniforms)
   {
-
+    constexpr std::size_t uniformCount = sizeof...(Args);
+    DEBUG("Shader {} received {} uniforms", this->shaderProgram, uniformCount);
+    ASSERT(uniformCount > 0, "With uniform expects at least one uniform. Send all uniforms, they will be replaced at the next assignment.");
+    std::tuple<Args...> uniforms{sharableUniforms...};
   }
 
 private:

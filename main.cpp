@@ -47,6 +47,16 @@ public:
     glBindVertexArray(0);
 
     DEBUG("VBO at {}, VAO at {}", verticesVBO, objectVAO);
+
+    auto floatUniform = glt::Uniform<float>::make("floated", 0.2f, [](float model, GLint location){
+      DEBUG("Update floated to {} at location {}", model, location);
+    });
+
+    auto intUniform = glt::Uniform<int>::make("inted", 5, [](int model, GLint location){
+      DEBUG("Update inted to {} at location {}", model, location);
+    });
+
+    this->shader.withUniforms(floatUniform, intUniform);
   }
 
   void draw()
@@ -80,6 +90,9 @@ private:
   GLuint objectVAO;
   glt::Shader shader;
 };
+
+#include "general_concepts.h"
+#include "uniform.h"
 
 int main(/* int argc, const char * argv[] */)
 {
