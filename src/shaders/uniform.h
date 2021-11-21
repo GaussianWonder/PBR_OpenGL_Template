@@ -19,17 +19,10 @@ class Uniform {
   using UniformUpdater = void(*)(T, GLint);
 
 public:
-  // This is the so-called "constructor"
-  static std::shared_ptr<Uniform<T>> make(const char *name, T model, UniformUpdater updateShader)
-  {
-    // TODO This unfortunately does not work because the constructor is private... stuck with 2 heap allocations for now
-    // return std::make_shared<Uniform<T>>(name, model, updateShader);
-    return std::shared_ptr<Uniform<T>>(new Uniform<T>(name, model, updateShader));
-  }
+  Uniform(const char *name, T model, UniformUpdater updateShader);
+  static std::shared_ptr<Uniform<T>> makeShared(const char *name, T model, UniformUpdater updateShader);
 
 private:
-  Uniform(const char *name, T model, UniformUpdater updateShader);
-
   T model;
   const char* name;
   UniformUpdater updateShader;
@@ -40,6 +33,12 @@ Uniform<T>::Uniform(const char* name, T model, UniformUpdater updateShader)
   :model(model), name(name), updateShader(updateShader)
 {
   // updateShader(model, );
+}
+
+template<typename T>
+std::shared_ptr<Uniform<T>> Uniform<T>::makeShared(const char *name, T model, UniformUpdater updateShader)
+{
+  return std::make_shared<Uniform<T>>(name, model, updateShader);
 }
 
 } // namespace glt

@@ -48,11 +48,11 @@ public:
 
     DEBUG("VBO at {}, VAO at {}", verticesVBO, objectVAO);
 
-    auto floatUniform = glt::Uniform<float>::make("floated", 0.2f, [](float model, GLint location){
+    auto floatUniform = glt::Uniform<float>::makeShared("floated", 0.2f, [](float model, GLint location){
       DEBUG("Update floated to {} at location {}", model, location);
     });
 
-    auto intUniform = glt::Uniform<int>::make("inted", 5, [](int model, GLint location){
+    auto intUniform = glt::Uniform<int>::makeShared("inted", 5, [](int model, GLint location){
       DEBUG("Update inted to {} at location {}", model, location);
     });
 
