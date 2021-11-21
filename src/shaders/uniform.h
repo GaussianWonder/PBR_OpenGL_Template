@@ -8,7 +8,6 @@
 #include <memory>
 
 #include "shader.h"
-#include "general_concepts.h"
 
 namespace glt {
 
