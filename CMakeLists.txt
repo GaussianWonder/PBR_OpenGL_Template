@@ -62,7 +62,10 @@ target_link_libraries(${PROJECT_NAME} GSL::gsl GSL::gslcblas)
 find_package(spdlog REQUIRED)
 target_link_libraries(${PROJECT_NAME} spdlog::spdlog)
 
-# Uploading textures to OpenGL
+# Tiny object loader
+find_package(tinyobjloader REQUIRED)
+target_link_libraries(${PROJECT_NAME} tinyobjloader::tinyobjloader)
 
-find_library(SOIL2 soil2-debug)
+# Uploading textures to OpenGL
+# find_library(SOIL2 soil2-debug)
 # target_link_libraries(${PROJECT_NAME} ${SOIL2})
