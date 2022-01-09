@@ -45,6 +45,7 @@ do
       ;;
 
     "execute")
+      # TODO dynamic project executable select
       cmds+=("./build/opengl_template")
       ;;
 
@@ -53,6 +54,8 @@ do
       ;;
 
     *)
+      # Support for custom commands via script path
+      cmds+=("$arg")
       ;;
   esac
 done

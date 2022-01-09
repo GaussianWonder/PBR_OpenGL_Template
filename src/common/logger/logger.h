@@ -40,13 +40,11 @@
 #include <string_view>
 #include <source_location>
 
-namespace glt {
-namespace Logger {
+namespace glt::Logger {
 
 void init();
 void destroy();
 
-} // namespace glt::Logger
 } // namespace glt
 
 #endif // _LOGGER_H_

@@ -7,39 +7,21 @@
 #include <string>
 #include <memory>
 
-#include "shader.h"
-
 namespace glt {
-
-class Shader; // let the compile know there will be such a class
 
 template<typename T>
 class Uniform {
-  friend class Shader;
-  using UniformUpdater = void(*)(T, GLint);
+  const char* name;
+  T model;
 
 public:
-  Uniform(const char *name, T model, UniformUpdater updateShader);
-  static std::shared_ptr<Uniform<T>> makeShared(const char *name, T model, UniformUpdater updateShader);
+  Uniform(const char *name, T model);
+  static std::shared_ptr<Uniform<T>> makeShared(const char *name, T model);
 
-private:
-  T model;
-  const char* name;
-  UniformUpdater updateShader;
+  const char * getName();
+
+  void update(GLint location);
 };
-
-template<typename T>
-Uniform<T>::Uniform(const char* name, T model, UniformUpdater updateShader)
-  :model(model), name(name), updateShader(updateShader)
-{
-  // updateShader(model, );
-}
-
-template<typename T>
-std::shared_ptr<Uniform<T>> Uniform<T>::makeShared(const char *name, T model, UniformUpdater updateShader)
-{
-  return std::make_shared<Uniform<T>>(name, model, updateShader);
-}
 
 } // namespace glt
 

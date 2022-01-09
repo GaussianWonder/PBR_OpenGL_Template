@@ -1,41 +1,35 @@
 #include "shader.h"
+#include "file_utils.h"
+#include "logger.h"
 
 #include <GL/glew.h>
-
-#include <fstream>
-#include <sstream>
 #include <string>
-
-#include "logger.h"
 
 namespace glt {
 
 // assign the static shader used pointer to a default nullptr
 Shader* Shader::shaderUsed = nullptr;
+Shader* Shader::currentShader()
+{
+  ASSERT(Shader::shaderUsed != nullptr, "Use a shader with Shader::useShaderProgram at least once before trying to get the currently used shader!");
+  return Shader::shaderUsed;
+}
 
 Shader::Shader(const char *vertexShaderFileName, const char *fragmentShaderFileName)
 {
-  this->loadShader(vertexShaderFileName, fragmentShaderFileName);
+  this->loadBasicProgram(vertexShaderFileName, fragmentShaderFileName);
 }
 
-GLuint Shader::parseShader(const std::string &fileName, GLenum shaderType)
+void Shader::loadBasicProgram(const std::string &vertexShaderFileName, const std::string &fragmentShaderFileName)
 {
-  DEBUG("Parsing {} shader {}", shaderType, fileName);
-  std::string contents = this->readShaderFile(fileName);
-  const GLchar* shaderString = contents.c_str();
-  DEBUG("{} shader contents \n{}\n", shaderType, shaderString);
-  GLuint shader;
-  shader = glCreateShader(shaderType);
-  glShaderSource(shader, 1, &shaderString, NULL);
-  glCompileShader(shader);
-  this->shaderCompileLog(shader);
-  return shader;
-}
-
-void Shader::loadShader(const std::string &vertexShaderFileName, const std::string &fragmentShaderFileName)
-{
-  GLuint vertexShader = this->parseShader(vertexShaderFileName, GL_VERTEX_SHADER);
-  GLuint fragmentShader = this->parseShader(fragmentShaderFileName, GL_FRAGMENT_SHADER);
+  GLuint vertexShader = this->parseShader(
+    this->readFile(vertexShaderFileName),
+    GL_VERTEX_SHADER
+  );
+  GLuint fragmentShader = this->parseShader(
+    this->readFile(fragmentShaderFileName),
+    GL_FRAGMENT_SHADER
+  );
   DEBUG("Vertex shader at {}", vertexShader);
   DEBUG("Fragment shader at {}", fragmentShader);
 
@@ -45,31 +39,20 @@ void Shader::loadShader(const std::string &vertexShaderFileName, const std::stri
   glLinkProgram(this->shaderProgram);
   glDeleteShader(vertexShader);
   glDeleteShader(fragmentShader);
-  this->shaderLinkLog(this->shaderProgram);
+  Shader::shaderLinkLog(this->shaderProgram);
 }
 
-std::string Shader::readShaderFile(const std::string &fileName)
+GLuint Shader::parseShader(const std::string &shaderContents, GLenum shaderType)
 {
-  std::ifstream shaderFile;
-  std::string shaderString;
-  
-  //open shader file
-  shaderFile.open(fileName);
-  
-  std::stringstream shaderStringStream;
-  
-  //read shader content into stream
-  shaderStringStream << shaderFile.rdbuf();
-  
-  //close shader file
-  shaderFile.close();
-  
-  //convert stream into GLchar array
-  shaderString = shaderStringStream.str();
-
-  return shaderString;
+  const GLchar* shaderString = shaderContents.c_str();
+  DEBUG("{} shader contents \n{}\n", shaderType, shaderString);
+  GLuint shader = glCreateShader(shaderType);
+  glShaderSource(shader, 1, &shaderString, NULL);
+  glCompileShader(shader);
+  Shader::shaderCompileLog(shader);
+  return shader;
 }
- 
+
 void Shader::shaderCompileLog(GLuint shaderId)
 {
   GLint success;
@@ -95,7 +78,7 @@ void Shader::shaderLinkLog(GLuint shaderProgramId)
   ASSERT(success, "Shader linking failed. Rendering will lack!");
   if(!success)
   {
-    glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+    glGetProgramInfoLog(shaderProgramId, 512, NULL, infoLog);
     ERROR("Shader linking error {}", infoLog);
   }
 }

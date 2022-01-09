@@ -1,7 +1,7 @@
 .idea
 .vscode
 
-cmake-build-debug
+cmake-build-debug/
 build/
 
 global.log

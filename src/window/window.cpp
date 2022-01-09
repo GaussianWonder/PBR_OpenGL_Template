@@ -82,7 +82,7 @@ bool Window::initOpenGLWindow()
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-  // for multisampling/antialising
+  // for multisampling/antialiasing
   glfwWindowHint(GLFW_SAMPLES, 4);
 
   glWindow = glfwCreateWindow(this->width, this->height, this->title, NULL, NULL);

@@ -5,6 +5,7 @@
 // useful for consteval const char *
 #define PathConcat(PATH1, PATH2) PATH1 PATH2
 #define ShaderFolder "./shaders"
+#define AssetsFolder "./assets"
 
 // Useful later on, when absolute paths are required
 // #include <filesystem>

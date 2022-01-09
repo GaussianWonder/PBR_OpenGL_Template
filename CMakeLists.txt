@@ -54,8 +54,15 @@ target_link_libraries(${PROJECT_NAME} GLEW::GLEW)
 find_package(glm REQUIRED)
 target_link_libraries(${PROJECT_NAME} glm)
 
+# Guideline support library
 find_package(GSL REQUIRED)
 target_link_libraries(${PROJECT_NAME} GSL::gsl GSL::gslcblas)
 
+# Fast and Reliable logging
 find_package(spdlog REQUIRED)
 target_link_libraries(${PROJECT_NAME} spdlog::spdlog)
+
+# Uploading textures to OpenGL
+
+find_library(SOIL2 soil2-debug)
+# target_link_libraries(${PROJECT_NAME} ${SOIL2})
