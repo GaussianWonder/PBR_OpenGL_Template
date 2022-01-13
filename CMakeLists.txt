@@ -17,7 +17,7 @@ endmacro()
 # End of configuration
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic -Werror -fcoroutines -fconcepts")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic -fcoroutines -fconcepts")
 
 # Get all *.c files
 file(GLOB_RECURSE Sources RELATIVE ${CMAKE_SOURCE_DIR} "src/*.cpp")
@@ -66,6 +66,6 @@ target_link_libraries(${PROJECT_NAME} spdlog::spdlog)
 find_package(tinyobjloader REQUIRED)
 target_link_libraries(${PROJECT_NAME} tinyobjloader::tinyobjloader)
 
-# Uploading textures to OpenGL
-# find_library(SOIL2 soil2-debug)
-# target_link_libraries(${PROJECT_NAME} ${SOIL2})
+# STB
+include_directories(/usr/include/stb)
+link_directories(/usr/include/stb) 

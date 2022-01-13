@@ -5,3 +5,4 @@ cmake-build-debug/
 build/
 
 global.log
+build.log

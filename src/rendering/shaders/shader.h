@@ -11,8 +11,6 @@
 namespace glt {
 
 class Shader : public FileUtils {
-  GLuint shaderProgram = 0;
-
 public:
   // Load shader manually using helper functions
   Shader() = default;
@@ -25,6 +23,8 @@ public:
   static GLuint parseShader(const std::string &shaderContents, GLenum shaderType);
   static void shaderCompileLog(GLuint shaderId);
   static void shaderLinkLog(GLuint shaderProgramId);
+
+  GLuint shaderProgram = 0;
 
   //? Is this really necessary?
   static Shader* shaderUsed; // Not the best idea, but it's ok since at all times at least one shader is used
