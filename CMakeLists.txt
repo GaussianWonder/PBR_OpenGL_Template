@@ -14,13 +14,38 @@ macro(HEADER_DIRECTORIES return_list)
   set(${return_list} ${dir_list})
 endmacro()
 
-# End of configuration
+set(CMAKE_CONFIGURATION_TYPES Debug Release CACHE STRING "" FORCE)
+set(CMAKE_BUILD_TYPE Debug CACHE STRING "")
+
+add_definitions("-std=c++20")
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic -fcoroutines -fconcepts")
 
+if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
+   message(STATUS "Downloading conan.cmake from https://github.com/conan-io/cmake-conan")
+   file(DOWNLOAD "https://raw.githubusercontent.com/conan-io/cmake-conan/v0.16.1/conan.cmake"
+                 "${CMAKE_BINARY_DIR}/conan.cmake")
+endif()
+include(${CMAKE_BINARY_DIR}/conan.cmake)
+
+conan_cmake_configure(REQUIRES glfw/3.3.6 GENERATORS CMakeDeps)
+conan_cmake_configure(REQUIRES opengl/system GENERATORS CMakeDeps)
+conan_cmake_configure(REQUIRES glew/2.2.0 GENERATORS CMakeDeps)
+conan_cmake_configure(REQUIRES glm/0.9.9.5 GENERATORS CMakeDeps)
+conan_cmake_configure(REQUIRES ms-gsl/3.1.0 GENERATORS CMakeDeps)
+conan_cmake_configure(REQUIRES spdlog/1.9.2 GENERATORS CMakeDeps)
+conan_cmake_configure(REQUIRES tinyobjloader/1.0.6 GENERATORS CMakeDeps)
+conan_cmake_configure(REQUIRES stb/cci.20210713 GENERATORS CMakeDeps)
+conan_cmake_configure(REQUIRES imgui/1.86 GENERATORS CMakeDeps)
+conan_cmake_autodetect(settings)
+conan_cmake_install(PATH_OR_REFERENCE . BUILD missing SETTINGS ${settings})
+
+set(CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR} ${CMAKE_MODULE_PATH})
+set(CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR} ${CMAKE_PREFIX_PATH})
+
 # Get all *.c files
-file(GLOB_RECURSE Sources RELATIVE ${CMAKE_SOURCE_DIR} "*.cpp")
+file(GLOB_RECURSE Sources RELATIVE ${CMAKE_SOURCE_DIR} "src/*.cpp")
 
 # Get all *.h files
 file(GLOB_RECURSE Headers *.h)
@@ -41,31 +66,34 @@ target_include_directories(
 )
 
 # Packages
+find_package(glfw3 CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC glfw)
 
-find_package(glfw3 3.3 REQUIRED)
-target_link_libraries(${PROJECT_NAME} glfw)
+find_package(opengl CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC opengl::opengl)
 
-find_package(OpenGL REQUIRED)
-target_link_libraries(${PROJECT_NAME} OpenGL::GL)
+find_package(GLEW CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC GLEW::GLEW)
 
-find_package(GLEW REQUIRED)
-target_link_libraries(${PROJECT_NAME} GLEW::GLEW)
-
-find_package(glm REQUIRED)
-target_link_libraries(${PROJECT_NAME} glm)
+find_package(glm CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC glm::glm)
 
 # Guideline support library
-find_package(GSL REQUIRED)
-target_link_libraries(${PROJECT_NAME} GSL::gsl GSL::gslcblas)
+# find_package(gsl REQUIRED)
+# target_link_libraries(${PROJECT_NAME} gsl)
 
 # Fast and Reliable logging
-find_package(spdlog REQUIRED)
-target_link_libraries(${PROJECT_NAME} spdlog::spdlog)
+find_package(spdlog CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC spdlog::spdlog)
 
 # Tiny object loader
-find_package(tinyobjloader REQUIRED)
-target_link_libraries(${PROJECT_NAME} tinyobjloader::tinyobjloader)
+find_package(tinyobjloader CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC tinyobjloader)
 
 # STB
-include_directories(/usr/include/stb)
-link_directories(/usr/include/stb) 
+find_package(stb CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC stb::stb)
+
+# ImGUI
+find_package(imgui CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC imgui::imgui)

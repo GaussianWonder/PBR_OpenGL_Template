@@ -1,7 +1,7 @@
 #include "shader.h"
 #include "model.h"
 #include "logger.h"
-#include "stb/stb_image.h"
+#include "stb_image.h"
 #include "tiny_obj_loader.h"
 
 namespace glt {
@@ -50,12 +50,12 @@ bool Model::readOBJ(const std::string &fileName, const std::string &basePath)
   int materialId;
 
   std::string err;
-  std::string wrn;
-  bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &wrn, &err, fileName.c_str(), basePath.c_str());
+  // std::string wrn;
+  bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials,/* &wrn,*/ &err, fileName.c_str(), basePath.c_str());
 
-  if (!wrn.empty()) {
-    WARN("{}", wrn);
-  }
+  // if (!wrn.empty()) {
+  //   WARN("{}", wrn);
+  // }
 
   if (!err.empty()) { // `err` may contain warning message.
     ERROR("Failed to load OBJ {}:\n{}", fileName, err);

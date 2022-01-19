@@ -34,6 +34,8 @@ Example:
   :cb     clean build shorthand
 ```
 
+> OUTDATED, use the conan build system, ditch the previous vanilla build system.
+
 The run script will take its arguments and execute them sequentially.
 
 There are only 5 **presetted commands**, but custom commands can be provided by path.

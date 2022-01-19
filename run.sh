@@ -18,12 +18,14 @@ print_help () {
   echo "  run build"
   echo "  run clean build"
   echo "  run clean"
+  echo "  run conan"
   echo ""
   echo "  :help   displays this message"
   echo "  :clean  clean build folder"
   echo "  :build  build project"
   echo "  :exec   execute the executable"
   echo "  :cb     clean build shorthand"
+  echo "  :conan  build with conan"
   echo ""
 }
 
@@ -62,6 +64,14 @@ do
 
     "cb")
       cmds+=("./scripts/clean_build.sh")
+      ;;
+
+    "dependencies")
+      cmds+=("./scripts/conan_install.sh")
+      ;;
+
+    "conan")
+      cmds+=("./scripts/conan_build.sh")
       ;;
 
     *)
