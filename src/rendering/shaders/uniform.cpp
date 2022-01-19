@@ -18,15 +18,18 @@ std::shared_ptr<Uniform<T>> Uniform<T>::makeShared(const char *name, T model)
 }
 
 template<typename T>
+const char * Uniform<T>::getName() { return name; }
+
+template<typename T>
 void Uniform<T>::update(GLint location)
 {
-  WARN("Use partial specialisation for update");
+  DEBUG("Use partial specialisation for update");
 }
 
 template<typename T>
 T& Uniform<T>::operator=(const T& other)
 {
-  WARN("Use partial specialisation for copy assignment");
+  DEBUG("Use partial specialisation for copy assignment");
   this->model = other;
   return this->model;
 }
@@ -34,7 +37,7 @@ T& Uniform<T>::operator=(const T& other)
 template<typename T>
 T& Uniform<T>::operator=(T&& other) noexcept
 {
-  WARN("Use partial specialisation for move assignment");
+  DEBUG("Use partial specialisation for move assignment");
   this->model = other;
   return this->model;
 }
@@ -54,6 +57,7 @@ void Uniform<glm::mat4>::update(GLint location)
 //? is not providing copy and move assignments overloads for mat4 lead to memory leaks?
 
 // force instantiation of partial specialised templates
+
 template class Uniform<glm::mat4>;
 
 } // namespace glt

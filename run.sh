@@ -1,5 +1,16 @@
 #!/bin/bash
 
+# Reset the global runtime log
+touch global.log
+truncate -s 0 global.log
+
+force_exit () {
+  echo "FAILED!"
+  echo $1
+  exit 1
+}
+
+# Help message
 print_help () {
   echo "Example:"
   echo "  run clean build opengl_template"
@@ -27,7 +38,7 @@ fi
 is_help=false
 
 cmds=()
-
+# Arg parse
 for arg in "$@"
 do
   case $arg in
@@ -67,12 +78,13 @@ fi
 
 echo "Executing ${#cmds[@]} commands"
 echo ""
-
+# Command execution
 for cmd in "${cmds[@]}"
 do
   echo "Doing $cmd"
-  time $cmd
+  time $cmd || force_exit "on $cmd"
   echo ""
+
 done
 
 cd $pwd

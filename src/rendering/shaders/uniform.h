@@ -14,7 +14,7 @@ class Uniform {
   const char* name;
 
 public:
-  T model; //! not good, keep it private
+  T model; //! not good, keep it private or make friends
   Uniform(const char *name, T model);
   static std::shared_ptr<Uniform<T>> makeShared(const char *name, T model);
 
