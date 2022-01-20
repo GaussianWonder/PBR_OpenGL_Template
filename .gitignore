@@ -8,3 +8,5 @@ bindings/
 global.log
 build.log
 run.log
+
+imgui.ini
