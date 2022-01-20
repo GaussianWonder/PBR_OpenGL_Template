@@ -63,7 +63,7 @@ message(STATUS "[INFO] Found ${header_dir_list_count} header directories.")
 target_include_directories(
   ${PROJECT_NAME}
   PUBLIC
-  ${header_dir_list} # Recursive
+  ${header_dir_list}
 )
 
 # Packages
