@@ -25,7 +25,8 @@ print_help () {
   echo "  :build  build project"
   echo "  :exec   execute the executable"
   echo "  :cb     clean build shorthand"
-  echo "  :conan  build with conan"
+  echo "  :conan  same as build"
+  echo "  :dependencies  conan install dependencies"
   echo ""
 }
 
@@ -54,7 +55,7 @@ do
       ;;
 
     "build")
-      cmds+=("./scripts/build.sh")
+      cmds+=("./scripts/conan_build.sh")
       ;;
 
     "execute")

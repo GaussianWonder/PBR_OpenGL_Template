@@ -3,9 +3,8 @@
 
 cmake-build-debug/
 build/
+bindings/
 
 global.log
 build.log
 run.log
-
-bindings/*

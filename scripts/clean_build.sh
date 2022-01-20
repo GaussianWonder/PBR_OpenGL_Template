@@ -3,6 +3,6 @@
 pwd=$(pwd)
 
 ./scripts/clean.sh
-./scripts/build.sh
+./scripts/conan_build.sh
 
 cd $pwd
