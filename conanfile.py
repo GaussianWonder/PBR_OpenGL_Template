@@ -17,7 +17,14 @@ class OpenGLTemplateConan(ConanFile):
   )
   generators = "CMakeToolchain", "CMakeDeps"
 
+  def imports(self):
+    self.copy("imgui_impl_glfw.cpp", "../bindings", "./res/bindings")
+    self.copy("imgui_impl_opengl3.cpp", "../bindings", "./res/bindings")
+    self.copy("imgui_impl_opengl3_loader.h", "../bindings", "./res/bindings")
+    self.copy("imgui_impl_glfw.h", "../bindings", "./res/bindings")
+    self.copy("imgui_impl_opengl3.h", "../bindings", "./res/bindings")
+
   def build(self):
-      cmake = CMake(self)
-      cmake.configure()
-      cmake.build()
+    cmake = CMake(self)
+    cmake.configure()
+    cmake.build()

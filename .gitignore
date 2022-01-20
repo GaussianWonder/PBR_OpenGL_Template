@@ -7,3 +7,5 @@ build/
 global.log
 build.log
 run.log
+
+bindings/*

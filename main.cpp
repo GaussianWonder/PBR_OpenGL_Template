@@ -15,9 +15,9 @@
 
 #include "logger.h"
 
-// #include "imgui.h"
-// #include "imgui_impl_glfw.h"
-// #include "imgui_impl_opengl3.h"
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
 
 class CustomWindow : glt::Window
 {
@@ -34,10 +34,10 @@ public:
 
   ~CustomWindow()
   {
-    // // Cleanup
-    // ImGui_ImplOpenGL3_Shutdown();
-    // ImGui_ImplGlfw_Shutdown();
-    // ImGui::DestroyContext();
+    // Cleanup
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
   }
 
   void setup() override
@@ -77,41 +77,41 @@ public:
 
     INFO("Uniform location is: {}", this->rotLoc);
 
-    // DEBUG("Setting up DEBUG GUI");
-    // // Setup Dear ImGui context
-    // IMGUI_CHECKVERSION();
-    // ImGui::CreateContext();
-    // ImGuiIO& io = ImGui::GetIO(); (void)io;
-    // //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    // //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+    DEBUG("Setting up DEBUG GUI");
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
-    // // Setup Dear ImGui style
-    // ImGui::StyleColorsDark();
+    // Setup Dear ImGui style
+    ImGui::StyleColorsDark();
 
-    // // Setup Platform/Renderer backends
-    // ImGui_ImplGlfw_InitForOpenGL(this->glWindow, true);
-    // ImGui_ImplOpenGL3_Init("#version 410 core");
+    // Setup Platform/Renderer backends
+    ImGui_ImplGlfw_InitForOpenGL(this->glWindow, true);
+    ImGui_ImplOpenGL3_Init("#version 410 core");
   }
 
   void draw() override
   {
-    // // Start the Dear ImGui frame
-    // ImGui_ImplOpenGL3_NewFrame();
-    // ImGui_ImplGlfw_NewFrame();
-    // ImGui::NewFrame();
+    // Start the Dear ImGui frame
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
 
-    // ImGui::Begin("Some window");
-    // ImGui::Text("Hello from another window!");
-    // ImGui::End();
+    ImGui::Begin("Some window");
+    ImGui::Text("Hello from another window!");
+    ImGui::End();
 
-    // ImGui::Render();
+    ImGui::Render();
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearColor(0.0, 0.0, 0.0, 1.0);
 
     cube.draw(shader);
 
-    // ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
     glfwSwapBuffers(this->glWindow);
   }

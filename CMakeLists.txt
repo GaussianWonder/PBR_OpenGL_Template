@@ -46,12 +46,13 @@ set(CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR} ${CMAKE_PREFIX_PATH})
 
 # Get all *.c files
 file(GLOB_RECURSE Sources RELATIVE ${CMAKE_SOURCE_DIR} "src/*.cpp")
+file(GLOB_RECURSE SBindings RELATIVE ${CMAKE_SOURCE_DIR} "bindings/*.cpp")
 
 # Get all *.h files
 file(GLOB_RECURSE Headers *.h)
 
 # Add everything to executable
-add_executable(${PROJECT_NAME} ${Headers} main.cpp ${Sources})
+add_executable(${PROJECT_NAME} ${Headers} main.cpp ${Sources} ${SBindings})
 
 # Get all header dirs to include
 header_directories(header_dir_list)
@@ -97,3 +98,4 @@ target_link_libraries(${PROJECT_NAME} PUBLIC stb::stb)
 # ImGUI
 find_package(imgui CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC imgui::imgui)
+# target_compile_definitions(${PROJECT_NAME} PUBLIC IMGUI_IMPL_OPENGL_LOADER_GLEW)
