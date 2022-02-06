@@ -8,16 +8,15 @@
 #include "uniform.h"
 #include "model.h"
 
+#include "widget_utils.h"
+#include "global_context_widget.h"
+
 #include <glm/glm.hpp>                  //core glm functionality
 #include <glm/gtc/matrix_transform.hpp> //glm extension for generating common transformation matrices
 #include <glm/gtc/matrix_inverse.hpp>   //glm extension for computing inverse matrices
 #include <glm/gtc/type_ptr.hpp>         //glm extension for accessing the internal data structure of glm types
 
 #include "logger.h"
-
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
 
 class CustomWindow : glt::Window
 {
@@ -34,10 +33,7 @@ public:
 
   ~CustomWindow()
   {
-    // Cleanup
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
+    glt::cleanup_widgets();
   }
 
   void setup() override
@@ -77,41 +73,22 @@ public:
 
     INFO("Uniform location is: {}", this->rotLoc);
 
-    DEBUG("Setting up DEBUG GUI");
-    // Setup Dear ImGui context
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-
-    // Setup Dear ImGui style
-    ImGui::StyleColorsDark();
-
-    // Setup Platform/Renderer backends
-    ImGui_ImplGlfw_InitForOpenGL(this->glWindow, true);
-    ImGui_ImplOpenGL3_Init("#version 410 core");
+    glt::init_widgets(this->glWindow);
   }
 
   void draw() override
   {
-    // Start the Dear ImGui frame
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplGlfw_NewFrame();
-    ImGui::NewFrame();
-
-    ImGui::Begin("Some window");
-    ImGui::Text("Hello from another window!");
-    ImGui::End();
-
-    ImGui::Render();
-
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearColor(0.0, 0.0, 0.0, 1.0);
 
     cube.draw(shader);
 
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    // Prepare rendering widgets
+    glt::widget_frame();
+    // Draw all widget
+    globalWidget.draw();
+    // Render drawn widgets
+    glt::render_widgets();
 
     glfwSwapBuffers(this->glWindow);
   }
@@ -134,33 +111,29 @@ public:
     if (pressedKeys[GLFW_KEY_W]) {
       this->rotMat = glm::rotate(this->rotMat.model, glm::radians(this->angle), glm::vec3(1, 0, 0));
       this->rotMat.update(this->rotLoc); // works only when using one shader (since it is enabled all the time)
-      DEBUG("W");
     }
     if (pressedKeys[GLFW_KEY_A]) {
       this->rotMat = glm::rotate(this->rotMat.model, glm::radians(this->angle), glm::vec3(0, 1, 0));
       this->rotMat.update(this->rotLoc);
-      DEBUG("A");
     }
     if (pressedKeys[GLFW_KEY_S]) {
       this->rotMat = glm::rotate(this->rotMat.model, glm::radians(this->angle), glm::vec3(-1, 0, 0));
       this->rotMat.update(this->rotLoc);
-      DEBUG("S");
     }
     if (pressedKeys[GLFW_KEY_D]) {
       this->rotMat = glm::rotate(this->rotMat.model, glm::radians(this->angle), glm::vec3(0, -1, 0));
       this->rotMat.update(this->rotLoc);
-      DEBUG("D");
     }
   }
 
 private:
+  glt::GlobalContextWidget globalWidget = glt::GlobalContextWidget();
   bool pressedKeys[349] = {false};
   glt::Shader shader;
   glt::Model cube;
   glt::Uniform<glm::mat4> rotMat;
   GLint rotLoc = -1;
   GLfloat angle = 0.15;
-  
 };
 
 int main(/* int argc, const char * argv[] */)

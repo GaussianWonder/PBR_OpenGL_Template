@@ -4,14 +4,16 @@ This is an OpengGL project start template in c++.
 
 ## Build
 
-The following commands will be displayed using an alias:
+At the time of writing this, the conan version used is `Conan version 1.44.0` with experimental features enabled.
+
+The following aliases are used in this document:
 
 ```bash
 alias run="./run.sh"
 alias log="./log_run.sh"
 ```
 
-Both **run** and **log** accept the same arguments, that of the command to **run**. Both commands will log runtime information, however log will also log the whole console output to a file.
+Both **run** and **log** accept the same arguments, that of the command to **run**. Both commands will log runtime information, however `log.sh` will also log the whole building process.
 
 ### Help menu
 
@@ -63,11 +65,14 @@ If using VSCode, I recommend the following settings for **command-runner**.
 "command-runner.terminal.autoClear": true,
 "command-runner.terminal.autoFocus": true,
 "command-runner.commands": {
-    "install": "./run.sh clean dependencies",
-    "run": "./run.sh conan execute",
-    "build": "./run.sh conan",
-    "log": "./log_run.sh clean dependencies conan",
-    "log run": "./log_run.sh conan execute"
+  "install": "./run.sh dependencies",
+  "build": "./run.sh conan",
+  "run": "./run.sh conan execute",
+  "clean": "./run.sh clean",
+  "build run": "./run.sh dependencies conan execute",
+  "log build": "./log_run.sh dependencies conan",
+  "log run": "./log_run.sh conan execute",
+  "log build run": "./log_run.sh dependencies conan execute"
 }
 ```
 
