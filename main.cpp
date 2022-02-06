@@ -18,15 +18,18 @@
 
 #include "logger.h"
 
+#include "camera.h"
+
 class CustomWindow : glt::Window
 {
 public:
   CustomWindow(const char *name, int width, int height)
       :Window(name, width, height)
       ,shader(glt::Shader(
-        PathConcat(ShaderFolder, "/basic/shader.vert"),
-        PathConcat(ShaderFolder, "/basic/color/texture.frag")))
-      ,rotMat(glt::Uniform("rotation", glm::mat4(1.0f)))
+        PathConcat(ShaderFolder, "/basic/camera/shader.vert"),
+        PathConcat(ShaderFolder, "/basic/camera/shader.frag")))
+      ,view(glt::Uniform("view", glm::mat4(1.0f)))
+      ,projection(glt::Uniform("projection", glm::mat4(1.0f)))
   {
     DEBUG("Window construct successful with valid state of {}", this->isValid());
   }
@@ -66,14 +69,25 @@ public:
       }
     });
 
-    // this->rotMat = glt::Uniform("rotation", glm::mat4(1.0f));
     this->shader.useShaderProgram();
-    this->rotLoc = glGetUniformLocation(this->shader.shaderProgram, "rotation");
-    this->rotMat.update(this->rotLoc);
-
-    INFO("Uniform location is: {}", this->rotLoc);
 
     glt::init_widgets(this->glWindow);
+
+    camera.setPerspective(glt::Camera::PerspectiveArgs{
+      .fov = glm::radians(45.0f),
+      .aspect = (float) this->retinaWidth / (float) this->retinaHeight,
+      .near = 0.1f,
+      .far = 1000.0f
+    });
+
+    this->viewLoc = glGetUniformLocation(this->shader.shaderProgram, "view");
+    this->projectionLoc = glGetUniformLocation(this->shader.shaderProgram, "projection");
+
+    this->view = camera.getViewMatrix();
+    this->projection = camera.getProjectionMatrix();
+
+    this->view.update(this->viewLoc);
+    this->projection.update(this->projectionLoc);
   }
 
   void draw() override
@@ -109,20 +123,20 @@ public:
   void key_processor()
   {
     if (pressedKeys[GLFW_KEY_W]) {
-      this->rotMat = glm::rotate(this->rotMat.model, glm::radians(this->angle), glm::vec3(1, 0, 0));
-      this->rotMat.update(this->rotLoc); // works only when using one shader (since it is enabled all the time)
+      this->view = camera.move(glt::Camera::Move::Forward, 0.01f);
+      this->view.update(this->viewLoc);
     }
     if (pressedKeys[GLFW_KEY_A]) {
-      this->rotMat = glm::rotate(this->rotMat.model, glm::radians(this->angle), glm::vec3(0, 1, 0));
-      this->rotMat.update(this->rotLoc);
+      this->view = camera.move(glt::Camera::Move::Left, 0.01f);
+      this->view.update(this->viewLoc);
     }
     if (pressedKeys[GLFW_KEY_S]) {
-      this->rotMat = glm::rotate(this->rotMat.model, glm::radians(this->angle), glm::vec3(-1, 0, 0));
-      this->rotMat.update(this->rotLoc);
+      this->view = camera.move(glt::Camera::Move::Backward, 0.01f);
+      this->view.update(this->viewLoc);
     }
     if (pressedKeys[GLFW_KEY_D]) {
-      this->rotMat = glm::rotate(this->rotMat.model, glm::radians(this->angle), glm::vec3(0, -1, 0));
-      this->rotMat.update(this->rotLoc);
+      this->view = camera.move(glt::Camera::Move::Right, 0.01f);
+      this->view.update(this->viewLoc);
     }
   }
 
@@ -131,9 +145,12 @@ private:
   bool pressedKeys[349] = {false};
   glt::Shader shader;
   glt::Model cube;
-  glt::Uniform<glm::mat4> rotMat;
-  GLint rotLoc = -1;
-  GLfloat angle = 0.15;
+
+  glt::Camera camera = glt::Camera();
+  glt::Uniform<glm::mat4> view;
+  glt::Uniform<glm::mat4> projection;
+  GLint viewLoc = -1;
+  GLint projectionLoc = -1;
 };
 
 int main(/* int argc, const char * argv[] */)
