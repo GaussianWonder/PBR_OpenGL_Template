@@ -9,7 +9,6 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices, std::vecto
   this->vertices = vertices;
   this->indices = indices;
   this->textures = textures;
-
   this->setupMesh();
 }
 
@@ -18,10 +17,9 @@ Buffers Mesh::getBuffers() {
 }
 
 /* Mesh drawing function - also applies associated textures */
-void Mesh::draw(Shader shader)
+void Mesh::draw(Shader &shader)
 {
   shader.useShaderProgram();
-
   //set textures
   for (GLuint i = 0; i < textures.size(); ++i)
   {
@@ -61,7 +59,7 @@ void Mesh::setupMesh()
   // Vertex Positions
   glEnableVertexAttribArray(0);
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0);
-  // Vertex Normals
+  // Vertex Normal
   glEnableVertexAttribArray(1);
   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, Normal));
   // Vertex Texture Coords

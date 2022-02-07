@@ -52,7 +52,7 @@ public:
 
   Buffers getBuffers();
 
-  void draw(Shader shader);
+  void draw(Shader &shader);
 
 private:
   Buffers buffers;

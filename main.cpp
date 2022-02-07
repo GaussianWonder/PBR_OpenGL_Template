@@ -17,23 +17,19 @@
 #include <glm/gtc/matrix_inverse.hpp>   //glm extension for computing inverse matrices
 #include <glm/gtc/type_ptr.hpp>         //glm extension for accessing the internal data structure of glm types
 
+#include <optional>
 #include <memory>
 
 #include "logger.h"
 
 #include "camera.h"
+#include "skybox.h"
 
 class CustomWindow : glt::Window
 {
 public:
   CustomWindow(const char *name, int width, int height)
       :Window(name, width, height)
-      ,shader(std::make_shared<glt::Shader>(
-        PathConcat(ShaderFolder, "/basic/camera/shader.vert"),
-        PathConcat(ShaderFolder, "/basic/camera/shader.frag")))
-      ,view(glt::Uniform("view", glm::mat4(1.0f)))
-      ,projection(glt::Uniform("projection", glm::mat4(1.0f)))
-      ,cube(glt::Object(PathConcat(ModelFolder, "/test_cube/cube.obj"), this->shader))
   {
     DEBUG("Window construct successful with valid state of {}", this->isValid());
   }
@@ -53,6 +49,7 @@ public:
     // Because of the lifetime of glfwGetWindowUserPointer is dependant of the lifetime of this class
     //  it is safe to never check it for NULL/nullptr
 
+    glEnable(GL_DEBUG_OUTPUT);
     glEnable(GL_DEPTH_TEST); // enable depth-testing
     glDepthFunc(GL_LESS);    // depth-testing interprets a smaller value as "closer"
     glEnable(GL_CULL_FACE);  // cull face
@@ -75,8 +72,7 @@ public:
         .near = 0.1f,
         .far = 1000.0f
       }));
-      context->projection = context->camera.getProjectionMatrix();
-      context->projection.update(context->projectionLoc);
+      (*context->projection) = context->camera.getProjectionMatrix();
     });
 
     // Now events might be processable on other threads alongside phisycs updates
@@ -112,13 +108,8 @@ public:
       xoffset *= sensitivity * delta;
       yoffset *= sensitivity * delta;
 
-      context->view = context->camera.rotate(xoffset, -yoffset);
-      context->view.update(context->viewLoc);
+      (*context->view) = context->camera.rotate(xoffset, -yoffset);
     });
-
-    glt::init_widgets(this->glWindow);
-
-    cube.loadModel(PathConcat(ModelFolder, "/test_cube/cube.obj"));
 
     this->shader->useShaderProgram();
 
@@ -129,14 +120,28 @@ public:
       .far = 1000.0f
     });
 
-    this->viewLoc = glGetUniformLocation(this->shader->shaderProgram, "view");
-    this->projectionLoc = glGetUniformLocation(this->shader->shaderProgram, "projection");
+    (*this->view) = camera.getViewMatrix();
+    (*this->projection) = camera.getProjectionMatrix();
 
-    this->view = camera.getViewMatrix();
-    this->projection = camera.getProjectionMatrix();
+    this->cube.emplace(
+      PathConcat(ModelFolder, "/test_cube/cube.obj"),
+      this->shader,
+      this->view,
+      this->projection
+    );
 
-    this->view.update(this->viewLoc);
-    this->projection.update(this->projectionLoc);
+    this->skyboxShader->useShaderProgram();
+
+    skybox.load({
+      PathConcat(TextureFolder, "/skybox/right.tga"),
+      PathConcat(TextureFolder, "/skybox/left.tga"),
+      PathConcat(TextureFolder, "/skybox/top.tga"),
+      PathConcat(TextureFolder, "/skybox/bottom.tga"),
+      PathConcat(TextureFolder, "/skybox/back.tga"),
+      PathConcat(TextureFolder, "/skybox/front.tga")
+    });
+
+    glt::init_widgets(this->glWindow);
   }
 
   void draw() override
@@ -144,7 +149,10 @@ public:
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearColor(0.0, 0.0, 0.0, 1.0);
 
-    cube.draw();
+
+    cube.value().draw();
+
+    skybox.draw(skyboxShader, view->model, projection->model);
 
     // Prepare rendering widgets
     glt::widget_frame();
@@ -175,48 +183,48 @@ public:
   void key_processor()
   {
     if (pressedKeys[GLFW_KEY_W]) {
-      this->view = camera.move(glt::Camera::Move::Forward, settings->move_speed * settings->deltaFrameTime);
-      this->view.update(this->viewLoc);
+      (*this->view) = camera.move(glt::Camera::Move::Forward, settings->move_speed * settings->deltaFrameTime);
     }
     if (pressedKeys[GLFW_KEY_A]) {
-      this->view = camera.move(glt::Camera::Move::Left, settings->move_speed * settings->deltaFrameTime);
-      this->view.update(this->viewLoc);
+      (*this->view) = camera.move(glt::Camera::Move::Left, settings->move_speed * settings->deltaFrameTime);
     }
     if (pressedKeys[GLFW_KEY_S]) {
-      this->view = camera.move(glt::Camera::Move::Backward, settings->move_speed * settings->deltaFrameTime);
-      this->view.update(this->viewLoc);
+      (*this->view) = camera.move(glt::Camera::Move::Backward, settings->move_speed * settings->deltaFrameTime);
     }
     if (pressedKeys[GLFW_KEY_D]) {
-      this->view = camera.move(glt::Camera::Move::Right, settings->move_speed * settings->deltaFrameTime);
-      this->view.update(this->viewLoc);
+      (*this->view) = camera.move(glt::Camera::Move::Right, settings->move_speed * settings->deltaFrameTime);
     }
     if (pressedKeys[GLFW_KEY_SPACE]) {
-      this->view = camera.move(glt::Camera::Move::Up, settings->move_speed * settings->deltaFrameTime);
-      this->view.update(this->viewLoc);
+      (*this->view) = camera.move(glt::Camera::Move::Up, settings->move_speed * settings->deltaFrameTime);
     }
     if (pressedKeys[GLFW_KEY_LEFT_SHIFT]) {
-      this->view = camera.move(glt::Camera::Move::Down, settings->move_speed * settings->deltaFrameTime);
-      this->view.update(this->viewLoc);
+      (*this->view) = camera.move(glt::Camera::Move::Down, settings->move_speed * settings->deltaFrameTime);
     }
     if (pressedKeys[GLFW_KEY_R]) {
-      this->cube.setModel(glm::rotate(
-        this->cube.getModel(),
+      this->cube.value().setModel(glm::rotate(
+        this->cube.value().getModel(),
         glm::radians(settings->move_speed * settings->deltaFrameTime),
         glm::vec3(0.25f, 0.5f, 0.25f)
       ));
     }
   }
 
+  glt::GlobalSettings *settings = glt::GlobalSettings::instance();
   glt::GlobalContextWidget globalWidget = glt::GlobalContextWidget();
   bool pressedKeys[349] = {false};
-  std::shared_ptr<glt::Shader> shader;
-  glt::Object cube;
+
+  std::shared_ptr<glt::Shader> shader = std::make_shared<glt::Shader>(
+    PathConcat(ShaderFolder, "/basic/camera/shader.vert"),
+    PathConcat(ShaderFolder, "/basic/camera/shader.frag"));
+  std::optional<glt::Object> cube;
 
   glt::Camera camera = glt::Camera();
-  glt::Uniform<glm::mat4> view;
-  glt::Uniform<glm::mat4> projection;
-  GLint viewLoc = -1;
-  GLint projectionLoc = -1;
+  std::shared_ptr<glt::Uniform<glm::mat4>> view = glt::Uniform<glm::mat4>::makeShared(
+    "view",
+    glm::mat4(1.0f));
+  std::shared_ptr<glt::Uniform<glm::mat4>> projection = glt::Uniform<glm::mat4>::makeShared(
+    "projection",
+    glm::mat4(1.0f));
 
   // Last mouse X/Y & Current mouse X/Y
   // Pointer to these are safe to be passed while considering the lifetime of the window
@@ -228,7 +236,10 @@ public:
   // used to calculate delta frame time
   float lastFrameTime = 0.0f;
 
-  glt::GlobalSettings *settings = glt::GlobalSettings::instance();
+  std::shared_ptr<glt::Shader> skyboxShader = std::make_shared<glt::Shader>(
+    PathConcat(ShaderFolder, "/skybox/shader.vert"),
+    PathConcat(ShaderFolder, "/skybox/shader.frag"));
+  glt::Skybox skybox;
 };
 
 int main(/* int argc, const char * argv[] */)

@@ -32,5 +32,15 @@ void destroy()
   spdlog::shutdown();
 }
 
+void checkOpenGLError(const char* stmt, const char* fname, int line)
+{
+  GLenum err = glGetError();
+  if (err != GL_NO_ERROR)
+  {
+    ERROR("OpenGL error {} in {}:{} - {}", err, fname, line, stmt);
+    abort();
+  }
+}
+
 } // namespace glt::Logger
 } // namespace glt

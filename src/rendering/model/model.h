@@ -35,7 +35,7 @@ public:
 
   void loadModel(const std::string &fileName, const std::string &basePath);
 
-  void draw(const Shader &shaderProgram);
+  void draw(Shader &shaderProgram);
 };
 
 } // namespace glt

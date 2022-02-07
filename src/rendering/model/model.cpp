@@ -35,10 +35,12 @@ void Model::loadModel(const std::string &fileName, const std::string &basePath)
   readModel(fileName, basePath);
 }
 
-void Model::draw(const glt::Shader &shaderProgram)
+void Model::draw(glt::Shader &shaderProgram)
 {
-  for (size_t i = 0; i < meshes.size(); ++i)
+  shaderProgram.useShaderProgram();
+  for (size_t i = 0; i < meshes.size(); ++i) {
     meshes[i].draw(shaderProgram);
+  }
 }
 
 bool Model::readModel(const std::string &fileName, const std::string &basePath)
@@ -239,6 +241,7 @@ GLuint Model::readTextureFromFile(const std::string &file_name)
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glBindTexture(GL_TEXTURE_2D, 0);
 
+  stbi_image_free(image_data);
   return textureID;
 }
 

@@ -14,11 +14,20 @@ namespace glt {
 
 class Object : public Model {
   std::shared_ptr<Shader> shader;
-  glt::Uniform<glm::mat4> model;
+  Uniform<glm::mat4> model;
+  std::shared_ptr<Uniform<glm::mat4>> view;
+  std::shared_ptr<Uniform<glm::mat4>> projection;
   GLint modelLoc = -1;
+  GLint viewLoc = -1;
+  GLint projectionLoc = -1;
 
 public:
-  Object(const char *path, std::shared_ptr<Shader> shader);
+  Object(
+    const char *path,
+    std::shared_ptr<Shader> shader,
+    std::shared_ptr<Uniform<glm::mat4>> view,
+    std::shared_ptr<Uniform<glm::mat4>> projection
+  );
   ~Object();
 
   void draw();

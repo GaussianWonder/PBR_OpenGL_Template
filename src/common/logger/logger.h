@@ -40,11 +40,25 @@
 #include <string_view>
 #include <source_location>
 
+#include <GL/glew.h>
+
 namespace glt::Logger {
 
 void init();
 void destroy();
 
+void checkOpenGLError(const char* stmt, const char* fname, int line);
+
 } // namespace glt
+
+#ifdef IS_LOGGING
+    #define GLERR(stmt) do { \
+            stmt; \
+            glt::Logger::checkOpenGLError(#stmt, __FILE__, __LINE__); \
+        } while (0)
+#else
+    #define GLERR(stmt) stmt
+#endif
+
 
 #endif // _LOGGER_H_
