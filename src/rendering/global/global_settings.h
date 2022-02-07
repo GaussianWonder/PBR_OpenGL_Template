@@ -41,6 +41,11 @@ public:
   float boundsSnap[3] = { 0.1f, 0.1f, 0.1f };
   bool boundSizing = false;
   bool boundSizingSnap = false;
+
+  float deltaFrameTime = 0.0f;
+
+  float sensitivity = 4.5f;
+  bool cursor_visible = false;
 };
 
 } // namespace glt

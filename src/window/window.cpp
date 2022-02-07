@@ -110,5 +110,10 @@ bool Window::initOpenGLWindow()
   return true;
 }
 
+void Window::setCursorVisibility(bool visible)
+{
+  glfwSetInputMode(this->glWindow, GLFW_CURSOR, visible ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
+}
+
 } // namespace glt
 

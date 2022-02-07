@@ -17,6 +17,7 @@ public:
 
   bool isValid();
 
+  void setCursorVisibility(bool visible);
 protected:
   virtual void setup();
   virtual void draw();

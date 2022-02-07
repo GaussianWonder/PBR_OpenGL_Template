@@ -7,6 +7,7 @@
 #include "shader.h"
 #include "uniform.h"
 #include "model.h"
+#include "global_settings.h"
 
 #include "widget_utils.h"
 #include "global_context_widget.h"
@@ -56,6 +57,11 @@ public:
     glFrontFace(GL_CCW);     // GL_CCW for counter clock-wise
     glViewport(0, 0, this->retinaWidth, this->retinaHeight); // TODO update when needed
 
+    this->setCursorVisibility(this->settings->cursor_visible);
+    // Initial last mouse is in the center of the window
+    lmX = (float) this->retinaWidth / 2;
+    lmY = (float) this->retinaHeight / 2;
+
     cube.loadModel(PathConcat(ModelFolder, "/test_cube/cube.obj"));
 
     // Now events might be processable on other threads alongside phisycs updates
@@ -66,7 +72,31 @@ public:
       // I don't think i need so many keys and we can possibly remove the if statement all throughout with smart branchless programming 
       if (key >= 0 && key < 349) {
         context->pressedKeys[key] = bool((action & GLFW_PRESS) | (action & GLFW_REPEAT));
+        if (key == GLFW_KEY_ESCAPE && action & GLFW_PRESS) {
+          context->settings->cursor_visible = !context->settings->cursor_visible;
+          context->setCursorVisibility(context->settings->cursor_visible);
+        }
       }
+    });
+
+    glfwSetCursorPosCallback(this->glWindow, [](GLFWwindow* window, double xpos, double ypos) {
+      CustomWindow* context = (CustomWindow*) glfwGetWindowUserPointer(window);
+      if (context->settings->cursor_visible)
+        return;
+
+      float xoffset = xpos - context->lmX;
+      float yoffset = context->lmY - ypos;
+      context->lmX = xpos;
+      context->lmY = ypos;
+
+      float delta = context->settings->deltaFrameTime;
+      float sensitivity = context->settings->sensitivity;
+
+      xoffset *= sensitivity * delta;
+      yoffset *= sensitivity * delta;
+
+      context->view = context->camera.rotate(xoffset, -yoffset);
+      context->view.update(context->viewLoc);
     });
 
     this->shader.useShaderProgram();
@@ -105,8 +135,11 @@ public:
     glt::render_widgets();
 
     glfwSwapBuffers(this->glWindow);
-  }
 
+    float currentFrameTime = glfwGetTime();
+    settings->deltaFrameTime = currentFrameTime - lastFrameTime;
+    lastFrameTime = currentFrameTime;
+  }
 
   void events() override
   {
@@ -123,24 +156,23 @@ public:
   void key_processor()
   {
     if (pressedKeys[GLFW_KEY_W]) {
-      this->view = camera.move(glt::Camera::Move::Forward, 0.01f);
+      this->view = camera.move(glt::Camera::Move::Forward, 2.5f * settings->deltaFrameTime);
       this->view.update(this->viewLoc);
     }
     if (pressedKeys[GLFW_KEY_A]) {
-      this->view = camera.move(glt::Camera::Move::Left, 0.01f);
+      this->view = camera.move(glt::Camera::Move::Left, 2.5f * settings->deltaFrameTime);
       this->view.update(this->viewLoc);
     }
     if (pressedKeys[GLFW_KEY_S]) {
-      this->view = camera.move(glt::Camera::Move::Backward, 0.01f);
+      this->view = camera.move(glt::Camera::Move::Backward, 2.5f * settings->deltaFrameTime);
       this->view.update(this->viewLoc);
     }
     if (pressedKeys[GLFW_KEY_D]) {
-      this->view = camera.move(glt::Camera::Move::Right, 0.01f);
+      this->view = camera.move(glt::Camera::Move::Right, 2.5f * settings->deltaFrameTime);
       this->view.update(this->viewLoc);
     }
   }
 
-private:
   glt::GlobalContextWidget globalWidget = glt::GlobalContextWidget();
   bool pressedKeys[349] = {false};
   glt::Shader shader;
@@ -151,6 +183,18 @@ private:
   glt::Uniform<glm::mat4> projection;
   GLint viewLoc = -1;
   GLint projectionLoc = -1;
+
+  // Last mouse X/Y & Current mouse X/Y
+  // Pointer to these are safe to be passed while considering the lifetime of the window
+  float lmX = 0.0f;
+  float lmY = 0.0f;
+  float cmX = 0.0f;
+  float cmY = 0.0f;
+
+  // used to calculate delta frame time
+  float lastFrameTime = 0.0f;
+
+  glt::GlobalSettings *settings = glt::GlobalSettings::instance();
 };
 
 int main(/* int argc, const char * argv[] */)

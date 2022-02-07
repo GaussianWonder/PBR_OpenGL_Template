@@ -17,10 +17,17 @@ class Camera {
   glm::mat4 view = glm::mat4(1.0f);
   glm::mat4 projection = glm::mat4(1.0f);
 
-  glm::vec3 cameraDirection = glm::vec3(0.0f, 0.0f, 0.0f);
+  // Relative axis
+  glm::vec3 relDirection = glm::vec3(0.0f, 0.0f, 0.0f);
+  glm::vec3 relRight = glm::vec3(0.0f, 0.0f, 0.0f);
+  glm::vec3 relUp = glm::vec3(0.0f, 0.0f, 0.0f);
+
+  float pitch = 0.0f;
+  float yaw = -90.0f;
 
   void init();
   void setViewMatrix();
+  void setAxisDirections();
 
 public:
   struct PerspectiveArgs {
@@ -40,7 +47,7 @@ public:
   };
 
   enum Move {
-    Left, Right, Forward, Backward,
+    Left, Right, Forward, Backward, Up, Down,
   };
 
   Camera();
@@ -58,6 +65,7 @@ public:
   void setPerspective(OrthographicArgs args);
 
   glm::mat4 move(Move direction, float speed);
+  glm::mat4 rotate(float xoffset, float yoffset);
 };
 
 } // namespace glt
