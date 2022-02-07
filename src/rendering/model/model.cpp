@@ -27,12 +27,12 @@ void Model::loadModel(std::string fileName)
   // texture loading can be async too
   // TODO texture and mesh binding MUST be decoupled 
   std::string basePath = fileName.substr(0, fileName.find_last_of('/')) + "/";
-  readOBJ(fileName, basePath);
+  readModel(fileName, basePath);
 }
 
 void Model::loadModel(const std::string &fileName, const std::string &basePath)
 {
-  readOBJ(fileName, basePath);
+  readModel(fileName, basePath);
 }
 
 void Model::draw(const glt::Shader &shaderProgram)
@@ -41,7 +41,7 @@ void Model::draw(const glt::Shader &shaderProgram)
     meshes[i].draw(shaderProgram);
 }
 
-bool Model::readOBJ(const std::string &fileName, const std::string &basePath)
+bool Model::readModel(const std::string &fileName, const std::string &basePath)
 {
   INFO("Loading OBJ {}", fileName);
   tinyobj::attrib_t attrib;

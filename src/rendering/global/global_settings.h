@@ -44,6 +44,7 @@ public:
 
   float deltaFrameTime = 0.0f;
 
+  float move_speed = 4.0f;
   float sensitivity = 4.5f;
   bool cursor_visible = false;
 };

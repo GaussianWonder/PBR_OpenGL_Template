@@ -18,6 +18,7 @@ public:
   bool isValid();
 
   void setCursorVisibility(bool visible);
+  void resetFrameBufferSize(int width, int height);
 protected:
   virtual void setup();
   virtual void draw();

@@ -54,6 +54,20 @@ void Uniform<glm::mat4>::update(GLint location)
   glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(model));
 }
 
+template<>
+glm::mat4& Uniform<glm::mat4>::operator=(const glm::mat4& other)
+{
+  this->model = other;
+  return this->model;
+}
+
+template<>
+glm::mat4& Uniform<glm::mat4>::operator=(glm::mat4&& other) noexcept
+{
+  this->model = other;
+  return this->model;
+}
+
 //? is not providing copy and move assignments overloads for mat4 lead to memory leaks?
 
 // force instantiation of partial specialised templates

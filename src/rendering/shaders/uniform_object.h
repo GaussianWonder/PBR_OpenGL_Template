@@ -5,6 +5,7 @@
 
 #include <GL/glew.h>
 #include <string>
+#include <array>
 #include <memory>
 #include <tuple>
 

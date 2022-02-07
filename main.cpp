@@ -6,7 +6,7 @@
 #include "paths.h"
 #include "shader.h"
 #include "uniform.h"
-#include "model.h"
+#include "object.h"
 #include "global_settings.h"
 
 #include "widget_utils.h"
@@ -17,6 +17,8 @@
 #include <glm/gtc/matrix_inverse.hpp>   //glm extension for computing inverse matrices
 #include <glm/gtc/type_ptr.hpp>         //glm extension for accessing the internal data structure of glm types
 
+#include <memory>
+
 #include "logger.h"
 
 #include "camera.h"
@@ -26,11 +28,12 @@ class CustomWindow : glt::Window
 public:
   CustomWindow(const char *name, int width, int height)
       :Window(name, width, height)
-      ,shader(glt::Shader(
+      ,shader(std::make_shared<glt::Shader>(
         PathConcat(ShaderFolder, "/basic/camera/shader.vert"),
         PathConcat(ShaderFolder, "/basic/camera/shader.frag")))
       ,view(glt::Uniform("view", glm::mat4(1.0f)))
       ,projection(glt::Uniform("projection", glm::mat4(1.0f)))
+      ,cube(glt::Object(PathConcat(ModelFolder, "/test_cube/cube.obj"), this->shader))
   {
     DEBUG("Window construct successful with valid state of {}", this->isValid());
   }
@@ -62,7 +65,19 @@ public:
     lmX = (float) this->retinaWidth / 2;
     lmY = (float) this->retinaHeight / 2;
 
-    cube.loadModel(PathConcat(ModelFolder, "/test_cube/cube.obj"));
+    glfwSetWindowSizeCallback(this->glWindow, [](GLFWwindow *window, int width, int height) {
+      CustomWindow *context = (CustomWindow*) glfwGetWindowUserPointer(window);
+      context->resetFrameBufferSize(width, height);
+
+      context->camera.setPerspective((glt::Camera::PerspectiveArgs{
+        .fov = glm::radians(45.0f),
+        .aspect = (float) context->retinaWidth / (float) context->retinaHeight,
+        .near = 0.1f,
+        .far = 1000.0f
+      }));
+      context->projection = context->camera.getProjectionMatrix();
+      context->projection.update(context->projectionLoc);
+    });
 
     // Now events might be processable on other threads alongside phisycs updates
     glfwSetKeyCallback(this->glWindow, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -81,13 +96,15 @@ public:
 
     glfwSetCursorPosCallback(this->glWindow, [](GLFWwindow* window, double xpos, double ypos) {
       CustomWindow* context = (CustomWindow*) glfwGetWindowUserPointer(window);
-      if (context->settings->cursor_visible)
-        return;
 
       float xoffset = xpos - context->lmX;
       float yoffset = context->lmY - ypos;
       context->lmX = xpos;
       context->lmY = ypos;
+
+      // abort just after setting last xpos and ypos
+      if (context->settings->cursor_visible)
+        return;
 
       float delta = context->settings->deltaFrameTime;
       float sensitivity = context->settings->sensitivity;
@@ -99,9 +116,11 @@ public:
       context->view.update(context->viewLoc);
     });
 
-    this->shader.useShaderProgram();
-
     glt::init_widgets(this->glWindow);
+
+    cube.loadModel(PathConcat(ModelFolder, "/test_cube/cube.obj"));
+
+    this->shader->useShaderProgram();
 
     camera.setPerspective(glt::Camera::PerspectiveArgs{
       .fov = glm::radians(45.0f),
@@ -110,8 +129,8 @@ public:
       .far = 1000.0f
     });
 
-    this->viewLoc = glGetUniformLocation(this->shader.shaderProgram, "view");
-    this->projectionLoc = glGetUniformLocation(this->shader.shaderProgram, "projection");
+    this->viewLoc = glGetUniformLocation(this->shader->shaderProgram, "view");
+    this->projectionLoc = glGetUniformLocation(this->shader->shaderProgram, "projection");
 
     this->view = camera.getViewMatrix();
     this->projection = camera.getProjectionMatrix();
@@ -125,7 +144,7 @@ public:
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearColor(0.0, 0.0, 0.0, 1.0);
 
-    cube.draw(shader);
+    cube.draw();
 
     // Prepare rendering widgets
     glt::widget_frame();
@@ -156,27 +175,42 @@ public:
   void key_processor()
   {
     if (pressedKeys[GLFW_KEY_W]) {
-      this->view = camera.move(glt::Camera::Move::Forward, 2.5f * settings->deltaFrameTime);
+      this->view = camera.move(glt::Camera::Move::Forward, settings->move_speed * settings->deltaFrameTime);
       this->view.update(this->viewLoc);
     }
     if (pressedKeys[GLFW_KEY_A]) {
-      this->view = camera.move(glt::Camera::Move::Left, 2.5f * settings->deltaFrameTime);
+      this->view = camera.move(glt::Camera::Move::Left, settings->move_speed * settings->deltaFrameTime);
       this->view.update(this->viewLoc);
     }
     if (pressedKeys[GLFW_KEY_S]) {
-      this->view = camera.move(glt::Camera::Move::Backward, 2.5f * settings->deltaFrameTime);
+      this->view = camera.move(glt::Camera::Move::Backward, settings->move_speed * settings->deltaFrameTime);
       this->view.update(this->viewLoc);
     }
     if (pressedKeys[GLFW_KEY_D]) {
-      this->view = camera.move(glt::Camera::Move::Right, 2.5f * settings->deltaFrameTime);
+      this->view = camera.move(glt::Camera::Move::Right, settings->move_speed * settings->deltaFrameTime);
       this->view.update(this->viewLoc);
+    }
+    if (pressedKeys[GLFW_KEY_SPACE]) {
+      this->view = camera.move(glt::Camera::Move::Up, settings->move_speed * settings->deltaFrameTime);
+      this->view.update(this->viewLoc);
+    }
+    if (pressedKeys[GLFW_KEY_LEFT_SHIFT]) {
+      this->view = camera.move(glt::Camera::Move::Down, settings->move_speed * settings->deltaFrameTime);
+      this->view.update(this->viewLoc);
+    }
+    if (pressedKeys[GLFW_KEY_R]) {
+      this->cube.setModel(glm::rotate(
+        this->cube.getModel(),
+        glm::radians(settings->move_speed * settings->deltaFrameTime),
+        glm::vec3(0.25f, 0.5f, 0.25f)
+      ));
     }
   }
 
   glt::GlobalContextWidget globalWidget = glt::GlobalContextWidget();
   bool pressedKeys[349] = {false};
-  glt::Shader shader;
-  glt::Model cube;
+  std::shared_ptr<glt::Shader> shader;
+  glt::Object cube;
 
   glt::Camera camera = glt::Camera();
   glt::Uniform<glm::mat4> view;

@@ -8,6 +8,7 @@
 
 #include <string>
 #include <vector>
+#include "uniform.h"
 
 namespace glt {
 
@@ -19,7 +20,7 @@ class Model
   std::vector<glt::Texture> loadedTextures;
 
   // Does the parsing of the .obj file and fills in the data structure
-  bool readOBJ(const std::string &fileName, const std::string &basePath);
+  bool readModel(const std::string &fileName, const std::string &basePath);
 
   // Retrieves a texture associated with the object - by its name and type
   glt::Texture loadTexture(const std::string &path, const std::string &type);

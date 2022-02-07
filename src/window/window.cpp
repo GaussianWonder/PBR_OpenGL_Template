@@ -115,5 +115,14 @@ void Window::setCursorVisibility(bool visible)
   glfwSetInputMode(this->glWindow, GLFW_CURSOR, visible ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
 }
 
+void Window::resetFrameBufferSize(int width, int height)
+{
+  this->width = width;
+  this->height = height;
+  glfwSetWindowSize(this->glWindow, this->width, this->height);
+  glfwGetFramebufferSize(this->glWindow, &(this->retinaWidth), &(this->retinaHeight));
+  glViewport(0, 0, this->retinaWidth, this->retinaHeight);
+}
+
 } // namespace glt
 
