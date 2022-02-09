@@ -6,6 +6,7 @@
 namespace glt {
 
 class Camera {
+protected:
   glm::vec3 initPosition = glm::vec3(0.0f, 0.0f, 0.0f);
   glm::vec3 initTarget = glm::vec3(0.0f, 0.0f, 0.0f);
   glm::vec3 initUp = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -28,6 +29,9 @@ class Camera {
   void init();
   void setViewMatrix();
   void setAxisDirections();
+
+  virtual void onViewChanged();
+  virtual void onProjectionChanged();
 
 public:
   struct PerspectiveArgs {

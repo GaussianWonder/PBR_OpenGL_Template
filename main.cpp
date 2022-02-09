@@ -22,12 +22,15 @@
 
 #include "logger.h"
 
-#include "camera.h"
+#include "main_camera.h"
 #include "skybox.h"
 
 class CustomWindow : glt::Window
 {
 public:
+  using SharedUMat4 = std::shared_ptr<glt::Uniform<glm::mat4>>;
+  using SharedShader = std::shared_ptr<glt::Shader>;
+ 
   CustomWindow(const char *name, int width, int height)
       :Window(name, width, height)
   {
@@ -66,13 +69,12 @@ public:
       CustomWindow *context = (CustomWindow*) glfwGetWindowUserPointer(window);
       context->resetFrameBufferSize(width, height);
 
-      context->camera.setPerspective((glt::Camera::PerspectiveArgs{
+      context->camera.value().setPerspective((glt::Camera::PerspectiveArgs{
         .fov = glm::radians(45.0f),
         .aspect = (float) context->retinaWidth / (float) context->retinaHeight,
         .near = 0.1f,
         .far = 1000.0f
       }));
-      (*context->projection) = context->camera.getProjectionMatrix();
     });
 
     // Now events might be processable on other threads alongside phisycs updates
@@ -108,20 +110,22 @@ public:
       xoffset *= sensitivity * delta;
       yoffset *= sensitivity * delta;
 
-      (*context->view) = context->camera.rotate(xoffset, -yoffset);
+      context->camera.value().rotate(xoffset, -yoffset);
     });
+
+    this->camera.emplace(
+      this->view,
+      this->projection
+    );
 
     this->shader->useShaderProgram();
 
-    camera.setPerspective(glt::Camera::PerspectiveArgs{
+    camera.value().setPerspective(glt::Camera::PerspectiveArgs{
       .fov = glm::radians(45.0f),
       .aspect = (float) this->retinaWidth / (float) this->retinaHeight,
       .near = 0.1f,
       .far = 1000.0f
     });
-
-    (*this->view) = camera.getViewMatrix();
-    (*this->projection) = camera.getProjectionMatrix();
 
     this->cube.emplace(
       PathConcat(ModelFolder, "/test_cube/cube.obj"),
@@ -148,7 +152,6 @@ public:
   {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearColor(0.0, 0.0, 0.0, 1.0);
-
 
     cube.value().draw();
 
@@ -183,22 +186,22 @@ public:
   void key_processor()
   {
     if (pressedKeys[GLFW_KEY_W]) {
-      (*this->view) = camera.move(glt::Camera::Move::Forward, settings->move_speed * settings->deltaFrameTime);
+      camera.value().move(glt::Camera::Move::Forward, settings->move_speed * settings->deltaFrameTime);
     }
     if (pressedKeys[GLFW_KEY_A]) {
-      (*this->view) = camera.move(glt::Camera::Move::Left, settings->move_speed * settings->deltaFrameTime);
+      camera.value().move(glt::Camera::Move::Left, settings->move_speed * settings->deltaFrameTime);
     }
     if (pressedKeys[GLFW_KEY_S]) {
-      (*this->view) = camera.move(glt::Camera::Move::Backward, settings->move_speed * settings->deltaFrameTime);
+      camera.value().move(glt::Camera::Move::Backward, settings->move_speed * settings->deltaFrameTime);
     }
     if (pressedKeys[GLFW_KEY_D]) {
-      (*this->view) = camera.move(glt::Camera::Move::Right, settings->move_speed * settings->deltaFrameTime);
+      camera.value().move(glt::Camera::Move::Right, settings->move_speed * settings->deltaFrameTime);
     }
     if (pressedKeys[GLFW_KEY_SPACE]) {
-      (*this->view) = camera.move(glt::Camera::Move::Up, settings->move_speed * settings->deltaFrameTime);
+      camera.value().move(glt::Camera::Move::Up, settings->move_speed * settings->deltaFrameTime);
     }
     if (pressedKeys[GLFW_KEY_LEFT_SHIFT]) {
-      (*this->view) = camera.move(glt::Camera::Move::Down, settings->move_speed * settings->deltaFrameTime);
+      camera.value().move(glt::Camera::Move::Down, settings->move_speed * settings->deltaFrameTime);
     }
     if (pressedKeys[GLFW_KEY_R]) {
       this->cube.value().setModel(glm::rotate(
@@ -213,18 +216,19 @@ public:
   glt::GlobalContextWidget globalWidget = glt::GlobalContextWidget();
   bool pressedKeys[349] = {false};
 
-  std::shared_ptr<glt::Shader> shader = std::make_shared<glt::Shader>(
+  SharedShader shader = std::make_shared<glt::Shader>(
     PathConcat(ShaderFolder, "/basic/camera/shader.vert"),
     PathConcat(ShaderFolder, "/basic/camera/shader.frag"));
   std::optional<glt::Object> cube;
 
-  glt::Camera camera = glt::Camera();
-  std::shared_ptr<glt::Uniform<glm::mat4>> view = glt::Uniform<glm::mat4>::makeShared(
+  SharedUMat4 view = glt::Uniform<glm::mat4>::makeShared(
     "view",
     glm::mat4(1.0f));
-  std::shared_ptr<glt::Uniform<glm::mat4>> projection = glt::Uniform<glm::mat4>::makeShared(
+  SharedUMat4 projection = glt::Uniform<glm::mat4>::makeShared(
     "projection",
     glm::mat4(1.0f));
+
+  std::optional<glt::MainCamera> camera;
 
   // Last mouse X/Y & Current mouse X/Y
   // Pointer to these are safe to be passed while considering the lifetime of the window
@@ -236,7 +240,7 @@ public:
   // used to calculate delta frame time
   float lastFrameTime = 0.0f;
 
-  std::shared_ptr<glt::Shader> skyboxShader = std::make_shared<glt::Shader>(
+  SharedShader skyboxShader = std::make_shared<glt::Shader>(
     PathConcat(ShaderFolder, "/skybox/shader.vert"),
     PathConcat(ShaderFolder, "/skybox/shader.frag"));
   glt::Skybox skybox;

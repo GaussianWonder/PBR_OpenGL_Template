@@ -9,6 +9,9 @@
 
 namespace glt {
 
+void Camera::onViewChanged(){}
+void Camera::onProjectionChanged(){}
+
 void Camera::setAxisDirections()
 {
   relDirection = glm::normalize(position - target);
@@ -19,6 +22,7 @@ void Camera::setAxisDirections()
 void Camera::setViewMatrix()
 {
   view = glm::lookAt(position, target, relUp);
+  onViewChanged();
 }
 
 void Camera::init()
@@ -78,11 +82,13 @@ glm::mat4 Camera::getProjectionMatrix()
 void Camera::setPerspective(Camera::PerspectiveArgs args)
 {
   projection = glm::perspective(args.fov, args.aspect, args.near, args.far);
+  onProjectionChanged();
 }
 
 void Camera::setPerspective(Camera::OrthographicArgs args)
 {
   projection = glm::ortho(args.left, args.right, args.bottom, args.top, args.near, args.far);
+  onProjectionChanged();
 }
 
 void Camera::reset()
