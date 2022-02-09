@@ -5,6 +5,8 @@
 
 #include "logger.h"
 
+#include "global_settings.h"
+
 namespace glt {
 
 Window::Window (const char *title, int width, int height)
@@ -101,6 +103,9 @@ bool Window::initOpenGLWindow()
   // get version info
   const GLubyte* renderer = glGetString(GL_RENDERER); // get renderer string
   const GLubyte* version = glGetString(GL_VERSION); // version as a string
+  GlobalSettings *settings = GlobalSettings::instance();
+  settings->renderer = reinterpret_cast<const char*>(renderer);
+  settings->version = reinterpret_cast<const char*>(version);
   INFO("Renderer {}", renderer);
   INFO("OpenGL version supported {}", version);
 

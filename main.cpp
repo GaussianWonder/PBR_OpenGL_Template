@@ -51,6 +51,7 @@ public:
     glfwSetWindowUserPointer(this->glWindow, this);
     // Because of the lifetime of glfwGetWindowUserPointer is dependant of the lifetime of this class
     //  it is safe to never check it for NULL/nullptr
+    // glfwSwapInterval(0); // request vsync disabled
 
     glEnable(GL_DEBUG_OUTPUT);
     glEnable(GL_DEPTH_TEST); // enable depth-testing
@@ -107,8 +108,8 @@ public:
       float delta = context->settings->deltaFrameTime;
       float sensitivity = context->settings->sensitivity;
 
-      xoffset *= sensitivity * delta;
-      yoffset *= sensitivity * delta;
+      xoffset *= sensitivity;
+      yoffset *= sensitivity;
 
       context->camera.value().rotate(xoffset, -yoffset);
     });

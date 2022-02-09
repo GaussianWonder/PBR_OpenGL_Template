@@ -13,8 +13,16 @@ GlobalContextWidget::GlobalContextWidget()
 void GlobalContextWidget::draw()
 {
   ImGui::Begin("Stats");
+  // Renderer info
+  ImGui::Text(this->model->renderer.c_str());
+  ImGui::Text(this->model->version.c_str());
+  // FPS
   ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-  ImGui::SliderFloat("Sensitivity", &this->model->sensitivity, 0.1f, 7.0f, "%.3f", 1.0f);
+  // Movement controls
+  ImGui::End();
+
+  ImGui::Begin("Controls");
+  ImGui::SliderFloat("Sensitivity", &this->model->sensitivity, 0.015625f, 0.5f, "%.5f", 1.0f);
   ImGui::SliderFloat("Movement Speed", &this->model->move_speed, 0.25f, 8.0f, "%.3f", 1.0f);
   ImGui::End();
 }

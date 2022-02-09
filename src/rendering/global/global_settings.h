@@ -1,6 +1,11 @@
 #ifndef _GLOBAL_SETTINGS_H_
 #define _GLOBAL_SETTINGS_H_
 
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+
+#include <string>
+
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -30,6 +35,10 @@ public:
   // unsafe, no nullptr check. usable when an initial render settings are set before using this
   static GlobalSettings * unwrap(); // identical to GlobalSettings::settings if it were to be public
 
+  // Renderer details
+  std::string renderer = "Unknown renderer name";
+  std::string version = "Unknown OpenGL version";
+
   bool isPerspective = true;
   RenderType render_type = RenderType::Normal;
   ImGuizmo::OPERATION operation = ImGuizmo::OPERATION::TRANSLATE;
@@ -45,8 +54,10 @@ public:
   float deltaFrameTime = 0.0f;
 
   float move_speed = 4.0f;
-  float sensitivity = 4.5f;
+  float sensitivity = 0.0625f;
   bool cursor_visible = false;
+
+
 };
 
 } // namespace glt
