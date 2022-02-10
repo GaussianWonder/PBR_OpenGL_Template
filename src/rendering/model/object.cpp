@@ -8,17 +8,23 @@
 
 namespace glt {
 
+using UniformUpdater = std::function<void(GLint)>;
+using ExternalUpdater = std::pair<GLint, UniformUpdater>;
+using ExternalUpdaters = std::vector<ExternalUpdater>;
+
 Object::Object(
   const char *path,
   std::shared_ptr<Shader> shader,
   std::shared_ptr<Uniform<glm::mat4>> view,
-  std::shared_ptr<Uniform<glm::mat4>> projection
+  std::shared_ptr<Uniform<glm::mat4>> projection,
+  ExternalUpdaters externalUpdates
 )
   :Model()
   ,shader(shader)
   ,model(glt::Uniform("model", glm::mat4(1.0f)))
   ,view(view)
   ,projection(projection)
+  ,externalUpdates(externalUpdates)
 {
   shader->useShaderProgram();
   loadModel(path);
@@ -37,6 +43,11 @@ Object::~Object()
 void Object::draw()
 {
   shader->useShaderProgram();
+  std::size_t updaterCount = externalUpdates.size();
+  for (std::size_t i = 0; i < updaterCount; ++i) {
+    auto &updater = externalUpdates[i];
+    updater.second(updater.first);
+  }
   model.update(modelLoc);
   view->update(viewLoc);
   projection->update(projectionLoc);

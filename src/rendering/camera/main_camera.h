@@ -15,17 +15,20 @@ namespace glt {
  */
 class MainCamera : public Camera {
   using SharedMat4Uni = std::shared_ptr<glt::Uniform<glm::mat4>>;
+  using SharedVec3Uni = std::shared_ptr<glt::Uniform<glm::vec3>>;
   SharedMat4Uni viewUni;
   SharedMat4Uni projectionUni;
 
   void onViewChanged() override;
   void onProjectionChanged() override;
 
+  SharedVec3Uni positionUni;
 public:
   MainCamera(SharedMat4Uni viewUni, SharedMat4Uni projectionUni);
 
   SharedMat4Uni getViewUni();
   SharedMat4Uni getProjectionUni();
+  SharedVec3Uni getCameraPositionUni();
 };
 
 } // namespace glt

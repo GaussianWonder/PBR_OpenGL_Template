@@ -36,7 +36,7 @@ void Camera::init()
 }
 
 Camera::Camera()
-  :position(glm::vec3(0.0f, 0.0f, -10.0f))
+  :position(glm::vec3(0.0f, 0.0f, -5.0f))
   ,target(glm::vec3(0.0f, 0.0f, 0.0f))
   ,up(glm::vec3(0.0f, 1.0f, 0.0f))
 {

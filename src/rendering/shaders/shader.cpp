@@ -20,6 +20,35 @@ Shader::Shader(const char *vertexShaderFileName, const char *fragmentShaderFileN
   this->loadBasicProgram(vertexShaderFileName, fragmentShaderFileName);
 }
 
+Shader::Shader(const char *vertexShaderFileName, const char *geometryShaderFileName, const char *fragmentShaderFileName)
+{
+  GLuint vertexShader = this->parseShader(
+    this->readFile(vertexShaderFileName),
+    GL_VERTEX_SHADER
+  );
+  GLuint geometryShader = this->parseShader(
+    this->readFile(geometryShaderFileName),
+    GL_GEOMETRY_SHADER
+  );
+  GLuint fragmentShader = this->parseShader(
+    this->readFile(fragmentShaderFileName),
+    GL_FRAGMENT_SHADER
+  );
+  DEBUG("Vertex shader at {}", vertexShader);
+  DEBUG("Geometry shader at {}", geometryShader);
+  DEBUG("Fragment shader at {}", fragmentShader);
+
+  this->shaderProgram = glCreateProgram();
+  glAttachShader(this->shaderProgram, vertexShader);
+  glAttachShader(this->shaderProgram, geometryShader);
+  glAttachShader(this->shaderProgram, fragmentShader);
+  glLinkProgram(this->shaderProgram);
+  glDeleteShader(vertexShader);
+  glDeleteShader(geometryShader);
+  glDeleteShader(fragmentShader);
+  Shader::shaderLinkLog(this->shaderProgram);
+}
+
 void Shader::loadBasicProgram(const std::string &vertexShaderFileName, const std::string &fragmentShaderFileName)
 {
   GLuint vertexShader = this->parseShader(
@@ -86,7 +115,7 @@ void Shader::shaderLinkLog(GLuint shaderProgramId)
 void Shader::useShaderProgram()
 {
   Shader::shaderUsed = this;
-  glUseProgram(this->shaderProgram);
+  GLERR( glUseProgram(this->shaderProgram) );
 }
 
 } // namespace glt

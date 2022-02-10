@@ -17,6 +17,8 @@
 #include <glm/gtc/matrix_inverse.hpp>   //glm extension for computing inverse matrices
 #include <glm/gtc/type_ptr.hpp>         //glm extension for accessing the internal data structure of glm types
 
+#include <vector>
+#include <utility>
 #include <optional>
 #include <memory>
 
@@ -48,18 +50,18 @@ public:
 
     // Because we can't pass lambdas with captures to calbacks
     //  make a 1:1 relationship between this window and this instance of the class
-    glfwSetWindowUserPointer(this->glWindow, this);
+    GLERR( glfwSetWindowUserPointer(this->glWindow, this) );
     // Because of the lifetime of glfwGetWindowUserPointer is dependant of the lifetime of this class
     //  it is safe to never check it for NULL/nullptr
     // glfwSwapInterval(0); // request vsync disabled
 
-    glEnable(GL_DEBUG_OUTPUT);
-    glEnable(GL_DEPTH_TEST); // enable depth-testing
-    glDepthFunc(GL_LESS);    // depth-testing interprets a smaller value as "closer"
-    glEnable(GL_CULL_FACE);  // cull face
-    glCullFace(GL_BACK);     // cull back face
-    glFrontFace(GL_CCW);     // GL_CCW for counter clock-wise
-    glViewport(0, 0, this->retinaWidth, this->retinaHeight); // TODO update when needed
+    GLERR( glEnable(GL_DEBUG_OUTPUT) );
+    GLERR( glEnable(GL_DEPTH_TEST) ); // enable depth-testing
+    GLERR( glDepthFunc(GL_LESS) );    // depth-testing interprets a smaller value as "closer"
+    GLERR( glEnable(GL_CULL_FACE) );  // cull face
+    GLERR( glCullFace(GL_BACK) );     // cull back face
+    GLERR( glFrontFace(GL_CCW) );     // GL_CCW for counter clock-wise
+    GLERR( glViewport(0, 0, this->retinaWidth, this->retinaHeight) ); // TODO update when needed
 
     this->setCursorVisibility(this->settings->cursor_visible);
     // Initial last mouse is in the center of the window
@@ -80,9 +82,7 @@ public:
 
     // Now events might be processable on other threads alongside phisycs updates
     glfwSetKeyCallback(this->glWindow, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
-      INFO("key call on {} with value {}", key, bool((action & GLFW_PRESS) | (action & GLFW_REPEAT)));
       CustomWindow* context = (CustomWindow*) glfwGetWindowUserPointer(window);
-      // TODO https://www.glfw.org/docs/3.3/group__keys.html
       // I don't think i need so many keys and we can possibly remove the if statement all throughout with smart branchless programming 
       if (key >= 0 && key < 349) {
         context->pressedKeys[key] = bool((action & GLFW_PRESS) | (action & GLFW_REPEAT));
@@ -128,11 +128,45 @@ public:
       .far = 1000.0f
     });
 
+    GLuint shaderProgram = this->shader->shaderProgram;
+    GLint cameraPositionUniLoc = glGetUniformLocation(
+      shaderProgram,
+      this->camera->getCameraPositionUni()->getName()
+    );
+    GLint gammaUniLoc = glGetUniformLocation(
+      shaderProgram,
+      this->settings->gamma->getName()
+    );
+    GLint exposureUniLoc = glGetUniformLocation(
+      shaderProgram,
+      this->settings->exposure->getName()
+    );
+    std::vector<std::pair<GLint, std::function<void(GLint)>>> uniform_updaters = {
+      {
+        cameraPositionUniLoc,
+        [this](GLint location) {
+          this->camera->getCameraPositionUni()->update(location);
+        }
+      },
+      {
+        gammaUniLoc,
+        [this](GLint location) {
+          this->settings->gamma->update(location);
+        }
+      },
+      {
+        exposureUniLoc,
+        [this](GLint location) {
+          this->settings->exposure->update(location);
+        }
+      }
+    };
     this->cube.emplace(
-      PathConcat(ModelFolder, "/test_cube/cube.obj"),
+      PathConcat(ModelFolder, "/icosphere/icosphere.obj"),
       this->shader,
       this->view,
-      this->projection
+      this->projection,
+      uniform_updaters
     );
 
     this->skyboxShader->useShaderProgram();
@@ -218,8 +252,9 @@ public:
   bool pressedKeys[349] = {false};
 
   SharedShader shader = std::make_shared<glt::Shader>(
-    PathConcat(ShaderFolder, "/basic/camera/shader.vert"),
-    PathConcat(ShaderFolder, "/basic/camera/shader.frag"));
+    PathConcat(ShaderFolder, "/pbr_test/pbr_t.vert"),
+    PathConcat(ShaderFolder, "/pbr_test/pbr_t.geom"),
+    PathConcat(ShaderFolder, "/pbr_test/pbr_t.frag"));
   std::optional<glt::Object> cube;
 
   SharedUMat4 view = glt::Uniform<glm::mat4>::makeShared(
@@ -252,7 +287,7 @@ int main(/* int argc, const char * argv[] */)
   glt::Logger::init();
   INFO("Logger init");
 
-  CustomWindow window("OpenGL Template", 600, 600);
+  CustomWindow window("OpenGL Template", 1000, 800);
   window();
 
   INFO("Logger destroy");

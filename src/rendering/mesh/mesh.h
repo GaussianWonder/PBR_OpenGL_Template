@@ -21,8 +21,7 @@ struct Vertex
 struct Texture
 {
   GLuint id;
-  // TODO adapt to PBR
-  // ambientTexture, diffuseTexture, specularTexture
+  // ambientTexture, diffuseTexture, specularTexture, normalMap, roughnessTexture, metallicTexture
   std::string type;
   std::string path;
 };

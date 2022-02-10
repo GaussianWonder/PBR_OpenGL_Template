@@ -51,7 +51,7 @@ void Uniform<glm::mat4>::update(GLint location)
 {
   // reading https://stackoverflow.com/questions/20314202/actual-cost-of-transpose-gl-true-in-gluniformmatrix-functions
   // it seems that GL TRANSPOSE is just copy in transpose order, so i'll keep it hard coded to false
-  glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(model));
+  GLERR( glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(model)) );
 }
 
 template<>
@@ -68,10 +68,55 @@ glm::mat4& Uniform<glm::mat4>::operator=(glm::mat4&& other) noexcept
   return this->model;
 }
 
+// === VEC3
+template<>
+void Uniform<glm::vec3>::update(GLint location)
+{
+  GLERR( glUniform3fv(location, 1, glm::value_ptr(model)) );
+}
+
+template<>
+glm::vec3& Uniform<glm::vec3>::operator=(const glm::vec3& other)
+{
+  this->model = other;
+  return this->model;
+}
+
+template<>
+glm::vec3& Uniform<glm::vec3>::operator=(glm::vec3&& other) noexcept
+{
+  this->model = other;
+  return this->model;
+}
+
+// === float
+template<>
+void Uniform<float>::update(GLint location)
+{
+  GLERR( glUniform1f(location, model) );
+}
+
+template<>
+float& Uniform<float>::operator=(const float& other)
+{
+  this->model = other;
+  return this->model;
+}
+
+template<>
+float& Uniform<float>::operator=(float&& other) noexcept
+{
+  this->model = other;
+  return this->model;
+}
+
+
 //? is not providing copy and move assignments overloads for mat4 lead to memory leaks?
 
 // force instantiation of partial specialised templates
 
 template class Uniform<glm::mat4>;
+template class Uniform<glm::vec3>;
+template class Uniform<float>;
 
 } // namespace glt

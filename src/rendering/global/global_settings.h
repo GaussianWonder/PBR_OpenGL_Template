@@ -12,13 +12,15 @@
 #include "ImGuizmo.h"
 #include "ImCurveEdit.h"
 
+#include <memory>
+#include "uniform.h"
+
 namespace glt {
 
 enum RenderType {
   Normal,
   Debug,
-  Wireframe,
-  Depth,
+  Wireframe
 };
 
 class GlobalSettings {
@@ -57,7 +59,8 @@ public:
   float sensitivity = 0.0625f;
   bool cursor_visible = false;
 
-
+  std::shared_ptr<Uniform<float>> gamma = Uniform<float>::makeShared("gamma", 2.2f);
+  std::shared_ptr<Uniform<float>> exposure = Uniform<float>::makeShared("exposure", 1.0f);
 };
 
 } // namespace glt

@@ -4,6 +4,8 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
+#include <functional>
+#include <utility>
 #include <memory>
 
 #include "model.h"
@@ -13,6 +15,10 @@
 namespace glt {
 
 class Object : public Model {
+  using UniformUpdater = std::function<void(GLint)>;
+  using ExternalUpdater = std::pair<GLint, UniformUpdater>;
+  using ExternalUpdaters = std::vector<ExternalUpdater>;
+
   std::shared_ptr<Shader> shader;
   Uniform<glm::mat4> model;
   std::shared_ptr<Uniform<glm::mat4>> view;
@@ -21,12 +27,15 @@ class Object : public Model {
   GLint viewLoc = -1;
   GLint projectionLoc = -1;
 
+  // poor man's uniform location v_table
+  ExternalUpdaters externalUpdates;
 public:
   Object(
     const char *path,
     std::shared_ptr<Shader> shader,
     std::shared_ptr<Uniform<glm::mat4>> view,
-    std::shared_ptr<Uniform<glm::mat4>> projection
+    std::shared_ptr<Uniform<glm::mat4>> projection,
+    ExternalUpdaters externalUpdates
   );
   ~Object();
 

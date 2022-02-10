@@ -26,7 +26,7 @@ class Model
   glt::Texture loadTexture(const std::string &path, const std::string &type);
 
   // Reads the pixel data from an image file and loads it into the video memory
-  GLuint readTextureFromFile(const std::string &file_name);
+  GLuint readTextureFromFile(const std::string &file_name, const std::string &type);
 
 public:
   ~Model();

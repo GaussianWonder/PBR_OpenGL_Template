@@ -123,7 +123,6 @@ bool Model::readModel(const std::string &fileName, const std::string &basePath)
     if (a > 0 && materials.size() > 0) {
       materialId = shapes[s].mesh.material_ids[0];
       if (materialId != -1) {
-        // TODO adapt to PBR material
         glt::Material currentMaterial;
         currentMaterial.ambient = glm::vec3(materials[materialId].ambient[0], materials[materialId].ambient[1], materials[materialId].ambient[2]);
         currentMaterial.diffuse = glm::vec3(materials[materialId].diffuse[0], materials[materialId].diffuse[1], materials[materialId].diffuse[2]);
@@ -133,6 +132,7 @@ bool Model::readModel(const std::string &fileName, const std::string &basePath)
         std::string ambientTexturePath = materials[materialId].ambient_texname;
         if (!ambientTexturePath.empty())
         {
+          DEBUG("Loading ambient texture");
           glt::Texture currentTexture;
           currentTexture = loadTexture(basePath + ambientTexturePath, "ambientTexture");
           textures.push_back(currentTexture);
@@ -142,6 +142,7 @@ bool Model::readModel(const std::string &fileName, const std::string &basePath)
         std::string diffuseTexturePath = materials[materialId].diffuse_texname;
         if (!diffuseTexturePath.empty())
         {
+          DEBUG("Loading diffuse texture");
           glt::Texture currentTexture;
           currentTexture = loadTexture(basePath + diffuseTexturePath, "diffuseTexture");
           textures.push_back(currentTexture);
@@ -151,8 +152,39 @@ bool Model::readModel(const std::string &fileName, const std::string &basePath)
         std::string specularTexturePath = materials[materialId].specular_texname;
         if (!specularTexturePath.empty())
         {
+          DEBUG("Loading specular texture");
           glt::Texture currentTexture;
           currentTexture = loadTexture(basePath + specularTexturePath, "specularTexture");
+          textures.push_back(currentTexture);
+        }
+
+        //metallic texture
+        std::string metallicTexturePath = materials[materialId].metallic_texname;
+        if (!metallicTexturePath.empty())
+        {
+          DEBUG("Loading metallic texture");
+          glt::Texture currentTexture;
+          currentTexture = loadTexture(basePath + metallicTexturePath, "metallicTexture");
+          textures.push_back(currentTexture);
+        }
+
+        //roughness texture
+        std::string roughnessTexturePath = materials[materialId].roughness_texname;
+        if (!roughnessTexturePath.empty())
+        {
+          DEBUG("Loading roughness texture");
+          glt::Texture currentTexture;
+          currentTexture = loadTexture(basePath + roughnessTexturePath, "roughnessTexture");
+          textures.push_back(currentTexture);
+        }
+
+        // normal texture
+        std::string normalTexturePath = materials[materialId].normal_texname;
+        if (!normalTexturePath.empty())
+        {
+          DEBUG("Loading normal map");
+          glt::Texture currentTexture;
+          currentTexture = loadTexture(basePath + normalTexturePath, "normalMap");
           textures.push_back(currentTexture);
         }
       }
@@ -167,7 +199,6 @@ bool Model::readModel(const std::string &fileName, const std::string &basePath)
 // Retrieves a texture associated with the object - by its name and type
 glt::Texture Model::loadTexture(const std::string &path, const std::string &type)
 {
-  // TODO adapt
   for (size_t i = 0; i < loadedTextures.size(); ++i) {
     if (loadedTextures[i].path == path)
     {
@@ -177,7 +208,7 @@ glt::Texture Model::loadTexture(const std::string &path, const std::string &type
   }
 
   glt::Texture currentTexture;
-  currentTexture.id = readTextureFromFile(path);
+  currentTexture.id = readTextureFromFile(path, type);
   currentTexture.type = std::string(type);
   currentTexture.path = path;
 
@@ -187,8 +218,9 @@ glt::Texture Model::loadTexture(const std::string &path, const std::string &type
 }
 
 // Reads the pixel data from an image file and loads it into the video memory
-GLuint Model::readTextureFromFile(const std::string &file_name)
+GLuint Model::readTextureFromFile(const std::string &file_name, const std::string &type)
 {
+  DEBUG("Reading {} from {}", type, file_name);
   int x, y, n;
   int force_channels = 4;
   unsigned char* image_data = stbi_load(file_name.c_str(), &x, &y, &n, force_channels);
@@ -220,28 +252,25 @@ GLuint Model::readTextureFromFile(const std::string &file_name)
   }
 
   GLuint textureID;
-  glGenTextures(1, &textureID);
-  glBindTexture(GL_TEXTURE_2D, textureID);
-  glTexImage2D(
-    GL_TEXTURE_2D,
-    0,
-    GL_SRGB, //GL_SRGB,//GL_RGBA,
-    x,
-    y,
-    0,
-    GL_RGBA,
-    GL_UNSIGNED_BYTE,
-    image_data
-  );
-  glGenerateMipmap(GL_TEXTURE_2D);
+  GLERR( glGenTextures(1, &textureID) );
+  GLERR( glBindTexture(GL_TEXTURE_2D, textureID) );
+  if (type == "normalMap") {
+    GLERR( glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, x, y, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data) );
+  }
+  else {
+    // color correction and hdr exposure adjustment is done in the shader
+    GLERR( glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, x, y, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data) );
+  }
+  GLERR( glGenerateMipmap(GL_TEXTURE_2D) );
 
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glBindTexture(GL_TEXTURE_2D, 0);
+  GLERR( glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT) );
+  GLERR( glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT) );
+  GLERR( glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR) );
+  GLERR( glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR) );
+  GLERR( glBindTexture(GL_TEXTURE_2D, 0) );
 
   stbi_image_free(image_data);
+  DEBUG("ID of texture {} is {}", type, textureID);
   return textureID;
 }
 

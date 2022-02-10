@@ -38,18 +38,18 @@ bool Window::isValid()
 
 void Window::setup()
 {
-  glEnable(GL_DEPTH_TEST); // enable depth-testing
-  glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
-  glEnable(GL_CULL_FACE); // cull face
-  glCullFace(GL_BACK); // cull back face
-  glFrontFace(GL_CCW); // GL_CCW for counter clock-wise
+  GLERR( glEnable(GL_DEPTH_TEST) ); // enable depth-testing
+  GLERR( glDepthFunc(GL_LESS) ); // depth-testing interprets a smaller value as "closer"
+  GLERR( glEnable(GL_CULL_FACE) ); // cull face
+  GLERR( glCullFace(GL_BACK) ); // cull back face
+  GLERR( glFrontFace(GL_CCW) ); // GL_CCW for counter clock-wise
 }
 
 void Window::draw()
 {
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  glClearColor(0.8, 0.8, 0.8, 1.0);
-  glViewport(0, 0, this->retinaWidth, this->retinaHeight);
+  GLERR( glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT) );
+  GLERR( glClearColor(0.8, 0.8, 0.8, 1.0) );
+  GLERR( glViewport(0, 0, this->retinaWidth, this->retinaHeight) );
 
   glfwSwapBuffers(this->glWindow);
 }
@@ -109,6 +109,12 @@ bool Window::initOpenGLWindow()
   INFO("Renderer {}", renderer);
   INFO("OpenGL version supported {}", version);
 
+  GLint max_vertices, max_components;
+  GLERR( glGetIntegerv(GL_MAX_GEOMETRY_OUTPUT_VERTICES, &max_vertices) );
+  GLERR( glGetIntegerv(GL_MAX_GEOMETRY_TOTAL_OUTPUT_COMPONENTS, &max_components) );
+  INFO("GL_MAX_GEOMETRY_OUTPUT_VERTICES {}", max_vertices);
+  INFO("GL_MAX_GEOMETRY_TOTAL_OUTPUT_COMPONENTS {}", max_components);
+
   //for RETINA display
   glfwGetFramebufferSize(this->glWindow, &(this->retinaWidth), &(this->retinaHeight));
 
@@ -126,7 +132,7 @@ void Window::resetFrameBufferSize(int width, int height)
   this->height = height;
   glfwSetWindowSize(this->glWindow, this->width, this->height);
   glfwGetFramebufferSize(this->glWindow, &(this->retinaWidth), &(this->retinaHeight));
-  glViewport(0, 0, this->retinaWidth, this->retinaHeight);
+  GLERR( glViewport(0, 0, this->retinaWidth, this->retinaHeight) );
 }
 
 } // namespace glt

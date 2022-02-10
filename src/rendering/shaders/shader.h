@@ -16,6 +16,7 @@ public:
   Shader() = default;
   // Load minimal shader from file
   Shader(const char *vertexShaderFileName, const char *fragmentShaderFileName);
+  Shader(const char *vertexShaderFileName, const char *geometryShaderFileName, const char *fragmentShaderFileName);
 
   void loadBasicProgram(const std::string &vertexShaderFileName, const std::string &fragmentShaderFileName);
   void useShaderProgram();

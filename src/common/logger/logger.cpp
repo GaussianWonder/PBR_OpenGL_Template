@@ -38,7 +38,7 @@ void checkOpenGLError(const char* stmt, const char* fname, int line)
   if (err != GL_NO_ERROR)
   {
     ERROR("OpenGL error {} in {}:{} - {}", err, fname, line, stmt);
-    abort();
+    // abort();
   }
 }
 
