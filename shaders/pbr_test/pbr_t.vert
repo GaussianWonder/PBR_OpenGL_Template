@@ -30,5 +30,5 @@ void main()
   gView = view;
   gCamPos = cameraPosition;
 
-	gl_Position = /* projection * view * model * */ vec4(vPosition, 1.0);
+	gl_Position = vec4(vPosition, 1.0);
 }
