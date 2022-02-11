@@ -1,6 +1,37 @@
 # OpenGL Template
 
-This is an OpengGL project start template in c++.
+This is an OpengGL project template written c++.
+
+It features:
+
+- Model loading
+  - Mesh handling
+  - Texture handling
+- Skybox loading
+- Shader loading
+  - Basic shader program
+  - +Geometry shader
+  - Clunky uniform updaters
+- Skybox loading
+- Logger
+- Clunky opengl error handler
+- Controllable Widgets
+- PBR
+  - Metallic texture
+  - Roughness texture
+  - Normal Map
+  - Albedo
+  - HDR tone mapping
+  - Gamma correction
+- Controllable Lights
+
+TODO:
+
+1. Add **hdri** support
+2. Add **IBL** support
+3. Add **specular map** to the PBR shader
+4. **Multiply TBN** with light variables in the geometry instead of fragment
+5. Include higher resolution textures
 
 ## Build
 

@@ -70,6 +70,8 @@ public:
 
   glm::mat4 move(Move direction, float speed);
   glm::mat4 rotate(float xoffset, float yoffset);
+
+  void interpolate(glm::vec3 position, glm::vec3 target, glm::vec3 up);
 };
 
 } // namespace glt
