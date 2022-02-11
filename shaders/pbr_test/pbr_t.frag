@@ -16,10 +16,11 @@ uniform sampler2D metallicTexture; // channel used for metallic
 uniform sampler2D roughnessTexture; // channel used for roughness
 uniform sampler2D normalMap;
 
-// uniform vec3 lightPositions[4];
-// uniform vec3 lightColors[4];
-in vec3 fLightPosition;
-in vec3 fLightColor;
+const int point_light_count = 4;
+uniform vec3 pointLPos[4];
+uniform vec3 pointLCol[4];
+uniform float pointLLin[4];
+uniform float pointLQuad[4];
 in vec3 fCamPos;
 
 const float PI = 3.14159265359;
@@ -78,12 +79,12 @@ void main()
 
 	// Direct lighting calculation for analytical lights.
 	vec3 directLighting = vec3(0);
-	for(int i=0; i<1; ++i)
+	for(int i=0; i<point_light_count; ++i)
 	{
-		vec3 Li = -normalize(fLightPosition - fPosition);
-    float dst = length(fLightPosition - fPosition);
-    float attenuation = 1.0 / (dst * dst);
-		vec3 Lradiance = fLightColor * attenuation;
+		vec3 Li = -normalize(pointLPos[i] - fPosition);
+    float dst = length(pointLPos[i] - fPosition);
+    float attenuation = 1.0 / (1.0 + pointLLin[i] * dst +  pointLQuad[i] * (dst * dst));
+		vec3 Lradiance = pointLCol[i] * attenuation;
 
 		// Half-vector between Li and Lo.
 		vec3 Lh = normalize(Li + Lo);
@@ -138,7 +139,7 @@ void main()
 		// Total ambient lighting contribution.
 		ambientLighting = diffuseIBL * 0.5;
 	}
-  vec3 minAlbedo = vec3(0.0025) * albedo;
+  vec3 minAlbedo = vec3(0.005) * albedo;
   vec3 color = minAlbedo + ambientLighting + directLighting;
 
   // HDR tone mapping

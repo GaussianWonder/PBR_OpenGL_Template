@@ -27,6 +27,8 @@
 #include "main_camera.h"
 #include "skybox.h"
 
+#include "lightstrip.h"
+
 class CustomWindow : glt::Window
 {
 public:
@@ -168,6 +170,25 @@ public:
       this->projection,
       uniform_updaters
     );
+    this->cave.emplace(
+      PathConcat(ModelFolder, "/cave/cave.obj"),
+      this->shader,
+      this->view,
+      this->projection,
+      uniform_updaters
+    );
+    glm::mat4 caveTransformation = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -7.0f));
+    caveTransformation = glm::scale(caveTransformation, glm::vec3(0.5f));
+    cave.value().setModel(caveTransformation);
+
+    glm::vec3 yellowTintLight = glm::vec3(1.0, 0.988, 0.902);
+    glm::vec3 intrusiveRed = glm::vec3(0.984313, 0.62745, 0.61568);
+    lightStrip.addPointLight(glm::vec3(1.0f, 1.25f, -17.0f), yellowTintLight, 1.0f, 0.0014f, 0.145306f);
+    lightStrip.addPointLight(glm::vec3(-1.0, 1.0, -2.0), yellowTintLight, 1.0f, 0.1764f, 0.059836f);
+    lightStrip.addPointLight(glm::vec3(2.0, 1.0, -1.0), intrusiveRed, 1.0f, 0.1764f, 0.059836f);
+    lightStrip.addPointLight(glm::vec3(15.0f, 1.25f, -16.0f), intrusiveRed, 1.0f, 0.0014f, 0.145306f);
+    lightStrip.setLightInformation(shaderProgram);
+    lightStrip.updateLightInformation(shaderProgram);
 
     this->skyboxShader->useShaderProgram();
 
@@ -189,6 +210,7 @@ public:
     glClearColor(0.0, 0.0, 0.0, 1.0);
 
     cube.value().draw();
+    cave.value().draw();
 
     skybox.draw(skyboxShader, view->model, projection->model);
 
@@ -196,14 +218,29 @@ public:
     glt::widget_frame();
     // Draw all widget
     globalWidget.draw();
+
+    this->shader->useShaderProgram();
+    lightStrip.debugWidget(this->shader->shaderProgram);
+
     // Render drawn widgets
     glt::render_widgets();
 
     glfwSwapBuffers(this->glWindow);
 
+    this->update();
+
     float currentFrameTime = glfwGetTime();
     settings->deltaFrameTime = currentFrameTime - lastFrameTime;
     lastFrameTime = currentFrameTime;
+  }
+
+  void update()
+  {
+    this->cube.value().setModel(glm::rotate(
+      this->cube.value().getModel(),
+      glm::radians(settings->move_speed * settings->deltaFrameTime * 2.0f),
+      glm::vec3(0.25f, 0.5f, 0.25f)
+    ));
   }
 
   void events() override
@@ -238,13 +275,13 @@ public:
     if (pressedKeys[GLFW_KEY_LEFT_SHIFT]) {
       camera.value().move(glt::Camera::Move::Down, settings->move_speed * settings->deltaFrameTime);
     }
-    if (pressedKeys[GLFW_KEY_R]) {
-      this->cube.value().setModel(glm::rotate(
-        this->cube.value().getModel(),
-        glm::radians(settings->move_speed * settings->deltaFrameTime),
-        glm::vec3(0.25f, 0.5f, 0.25f)
-      ));
-    }
+    // if (pressedKeys[GLFW_KEY_R]) {
+    //   this->cube.value().setModel(glm::rotate(
+    //     this->cube.value().getModel(),
+    //     glm::radians(settings->move_speed * settings->deltaFrameTime * 2.0f),
+    //     glm::vec3(0.25f, 0.5f, 0.25f)
+    //   ));
+    // }
   }
 
   glt::GlobalSettings *settings = glt::GlobalSettings::instance();
@@ -256,6 +293,7 @@ public:
     PathConcat(ShaderFolder, "/pbr_test/pbr_t.geom"),
     PathConcat(ShaderFolder, "/pbr_test/pbr_t.frag"));
   std::optional<glt::Object> cube;
+  std::optional<glt::Object> cave;
 
   SharedUMat4 view = glt::Uniform<glm::mat4>::makeShared(
     "view",
@@ -280,6 +318,8 @@ public:
     PathConcat(ShaderFolder, "/skybox/shader.vert"),
     PathConcat(ShaderFolder, "/skybox/shader.frag"));
   glt::Skybox skybox;
+
+  glt::LightStrip lightStrip;
 };
 
 int main(/* int argc, const char * argv[] */)

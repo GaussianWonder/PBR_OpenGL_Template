@@ -22,9 +22,6 @@ out mat3 fTBN;
 
 void main()
 {
-  // TODO proper lights maybe?
-  vec3 gLightPosition = vec3(-1.0, 1.0, -2.0);
-  vec3 gLightColor = vec3(1.0, 0.988, 0.902);
   // Edges of the triangle
   vec3 edge0 = gl_in[1].gl_Position.xyz - gl_in[0].gl_Position.xyz;
   vec3 edge1 = gl_in[2].gl_Position.xyz - gl_in[0].gl_Position.xyz;
@@ -55,8 +52,6 @@ void main()
     fTexCoords = gTexCoords[i];
     // Change all lighting variables to TBN space
     fPosition = pos.xyz;
-    fLightPosition = gLightPosition;
-    fLightColor = gLightColor;
     fCamPos = gCamPos[i];
     EmitVertex();
   }

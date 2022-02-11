@@ -49,8 +49,6 @@ T& Uniform<T>::operator=(T&& other) noexcept
 template<>
 void Uniform<glm::mat4>::update(GLint location)
 {
-  // reading https://stackoverflow.com/questions/20314202/actual-cost-of-transpose-gl-true-in-gluniformmatrix-functions
-  // it seems that GL TRANSPOSE is just copy in transpose order, so i'll keep it hard coded to false
   GLERR( glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(model)) );
 }
 
