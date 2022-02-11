@@ -177,16 +177,16 @@ glm::mat4 Camera::rotate(float xoffset, float yoffset)
 
 void Camera::interpolate(Camera newCamera)
 {
-  glm::quat start(this->view);
-  glm::quat end(newCamera.view);
+  // glm::quat start(this->view);
+  // glm::quat end(newCamera.view);
 
-  float factor = 0.25;
+  // float factor = 0.25;
 
-  glm::quat view_lerp = glm::slerp(start, end, factor);
-  glm::vec3 pos_lerp  = glm::mix(this->position, newCamera.position, interp_factor);
+  // glm::quat view_lerp = glm::slerp(start, end, factor);
+  // glm::vec3 pos_lerp  = glm::mix(this->position, newCamera.position, factor);
 
-  glm::mat4 new_view = glm::mat4_cast(view_lerp); // Setup rotation
-  view_matrix[3] = glm::vec4(pos_lerp, 1.0);  // Introduce translation
+  // glm::mat4 new_view = glm::mat4_cast(view_lerp); // Setup rotation
+  // view_lerp[3] = glm::vec4(pos_lerp.x, pos_lerp.y, pos_lerp.z, 1.0f);  // Introduce translation
 }
 
 } // namespace glt
